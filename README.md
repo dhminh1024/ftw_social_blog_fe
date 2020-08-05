@@ -1,68 +1,333 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Social Blog app
 
-## Available Scripts
+## Introduction
 
-In the project directory, you can run:
+## Implementation
 
-### `npm start`
+### Project setup
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- Create project with `create-react-app`
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+  ```javascript
+  npx create-react-app social-app
+  cd social-app
+  npm i redux react-redux redux-thunk redux-devtools-extension
+  npm i react-router-dom
+  npm i bootstrap react-bootstrap
+  npm i axios uuid
+  ```
 
-### `npm test`
+  - Delete `/src/logo.svg`. Goto `/src/App.js` remove `import logo from './logo.svg';`
+  - Delete `/src/index.css`. Go to `/src/index.js`, remove `import './index.css'`
+  - In `/src/App.css`, remove everything
+  - Replace the icon and the title of the app:
+    - Copy your icon file to `/public/` e.g. `icon.png`, delete `favicon.ico`.
+    - Go to `/puclic/index.html` replace `<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />` with `<link rel="icon" href="%PUBLIC_URL%/icon.png" />`
+    - In `/puclic/index.html`, change `<title>React App</title>` to `<title>Social Blog</title>`
+  - In `App.js`, add `import "bootstrap/dist/css/bootstrap.min.css";` 
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Project Structure
 
-### `npm run build`
+```
+|- src\
+    |- components\
+    |- containers\
+        |- HomePage\
+        |- LoginPage\
+        |- DashboardPage\
+        |- Routes\
+            |- PrivateRoute.js
+            |- index.js
+    |- images\
+    |- redux\
+        |- actions\
+        |- constants\
+        |- reducers\
+        |- api.js
+        |- configureStore.js
+    |- utils\
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `src/components/`: folder for simple stateless components
+- `src/containers/`: folder for stateful components
+- `src/redux/actions`: each file in this folder is related to a set of actions, e.g. `auth.actions.js`
+- `src/redux/reducers`: set of reducers that are combined in `index.js`
+- `src/redux/constants`: set of types of actions
+- `src/redux/store.js`: configuration of the store
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+### Step 1 - Setup routes and protected routes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Create `src/containers/Routes/PrivateRoute.js`:
+  ```javascript
+  const PrivateRoute = ({ isAuthenticated, ...rest }) => {
+    if (isAuthenticated) return <Route {...rest} />;
+    delete rest.component;
+    return <Route {...rest} render={(props) => <Redirect to="/login" />} />;
+  };
 
-### `npm run eject`
+  export default PrivateRoute;
+  ```
+- Create `HomePage`, `LoginPage`, `RegisterPage`, and `DashboardPage`: Create according folder in `src/containers`. In each folder, create `index.js`, then use `rface` to create the component. Add a `h1` title in each component.
+- Create `src/containers/Routes/index.js`:
+  ```javascript
+  const Routes = (props) => {
+    return (
+      <Switch>
+        <Route exact path="/" component={HomePage} />
+        <Route exact path="/login" component={LoginPage} />
+        <Route exact path="/register" component={RegisterPage} />
+        <PrivateRoute exact path="/dashboard" component={DashboardPage} />
+      </Switch>
+    );
+  };
+  export default Routes;
+  ```
+  Put `isAuthenticated={true}` in `PrivateRoute` to test the `DashboardPage`. 
+- Test the routes: in `App.js`:
+  ```javascript
+  return(
+    <Router>
+      <Routes />
+    </Router>
+  )
+  ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Step 2 - Building the UI first
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### The Login Page
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- Setup states and handle event functions for the login form:
+  ```javascript
+  const LoginPage = ({ isAuthenticated, loading }) => {
+    const [formData, setFormData] = useState({
+      email: "",
+      password: "",
+    });
+    const [errors, setErrors] = useState({
+      email: "",
+      password: "",
+    });
+    const handleChange = (e) =>
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      // TODO: Handle submit form
+    };
+    if (isAuthenticated) return <Redirect to="/" />;
+  ```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- Implement UI: `<Container>...</Container>`
 
-## Learn More
+#### The Register Page
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- States and handle event functions:
+  ```javascript
+  const RegisterPage = ({ isAuthenticated, loading }) => {
+    const [formData, setFormData] = useState({
+      name: "",
+      email: "",
+      password: "",
+      password2: "",
+    });
+    const [errors, setErrors] = useState({
+      name: "",
+      email: "",
+      password: "",
+      password2: "",
+    });
+    const handleChange = (e) =>
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const { password, password2 } = formData;
+      if (password !== password2) {
+        setErrors({ ...errors, password2: "Passwords do not match" });
+        return;
+      }
+      // TODO: handle Register
+    };
+    if (isAuthenticated) return <Redirect to="/" />;
+  ```
+  - Implement UI: `<Container>...</Container>`
+  - (Optional) For convinience, you can add a button that fills in fake data:
+  ```javascript
+  const fillFakeData = () => {
+    setFormData({
+      name: "Minh",
+      email: "minhdh@cs.vn",
+      password: "123",
+      password2: "123",
+    });
+  };
+  ...
+  <Button
+    className="btn-block"
+    type="button"
+    variant="light"
+    onClick={fillFakeData}
+  >
+    Fake data
+  </Button>
+  ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### The Navbar
 
-### Code Splitting
+- Create `src/containers/PublicNavbar/index.js`:
+  ```javascript
+  const PublicNavbar = ({ isAuthenticated, loading }) => {
+    const handleLogout = () => {
+      // TODO: handle Logout
+    };
+    const authLinks = (
+      <Nav>
+        <Nav.Link as={Link} to="/dashboard">
+          <i className="fas fa-chart-line" /> Dashboard
+        </Nav.Link>
+        <Nav.Link onClick={handleLogout}>
+          <i className="fas fa-sign-out-alt" /> Logout
+        </Nav.Link>
+      </Nav>
+    );
+    const publicLinks = (
+      <Nav>
+        <Nav.Link as={Link} to="/register">
+          <i className="fas fa-registered" /> Register
+        </Nav.Link>
+        <Nav.Link as={Link} to="/login">
+          <i className="fas fa-sign-in-alt" /> Login
+        </Nav.Link>
+      </Nav>
+    );
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+    return (
+      <Navbar bg="light" expand="lg">
+        <Navbar.Brand as={Link} to="/" className="mr-auto">
+          <img src={logo} alt="CoderSchool" />
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto"></Nav>
+          {!loading && <>{isAuthenticated ? authLinks : publicLinks}</>}
+        </Navbar.Collapse>
+      </Navbar>
+    );
+  };
 
-### Analyzing the Bundle Size
+  export default PublicNavbar;
+  ```
+- In `HomePage/index.js`:
+  ```javascript
+  return (
+    <>
+      <PublicNavbar />
+      <Container>
+        <h1>Home Page</h1>
+      </Container>
+    </>
+  );
+  ```
+- Test the navbar
+- Problem: Adding `PublicNavar` to every page is tedius especially when we have to pass `props` to the navbar. How can we define a general layout for those pages where we can use one navbar for all the pages?
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+#### The layout wrapper
 
-### Making a Progressive Web App
+- Create `src/layouts/PublicLayout.js`, cut the public routes from `src/Routes/index.js` and paste them here:
+  ```javascript
+  const PublicLayout = () => {
+    return (
+      <>
+        <PublicNavbar />
+        <Container>
+          <Switch>
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/login" component={LoginPage} />
+            <Route exact path="/register" component={RegisterPage} />
+          </Switch>
+        </Container>
+      </>
+    );
+  };
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+  export default PublicLayout;
+  ```
+- Put `PublicLayout` in `Routes/index.js`:
+  ```javascript
+  return (
+    <Switch>
+      <PrivateRoute exact path="/dashboard" component={DashboardPage}/>
+      <Route path="/" component={PublicLayout} />
+    </Switch>
+  );
+  ```
 
-### Advanced Configuration
+#### The NotFoundPage
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+- Create `src/layouts/NotFoundPage.js`
+  ```javascript
+  const NotFoundPage = () => {
+    return (
+      <Container>
+        <Row>
+          <Col md={{ span: 6, offset: 3 }}>
+            <h1>404</h1>
+            <p>The page you are looking for does not exist.</p>
+          </Col>
+        </Row>
+      </Container>
+    );
+  };
+  export default NotFoundPage;
+  ```
+- Add it in `PublicLayout`:
+  ```javascript
+  <Switch>
+    <Route exact path="/" component={HomePage} />
+    <Route exact path="/login" component={LoginPage} />
+    <Route exact path="/register" component={RegisterPage} />
+    <Route component={NotFoundPage} />
+  </Switch>
+  ```
 
-### Deployment
+### The Homepage
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+- Create a mockup stateless complonent `BlogCard`:
+  ```javascript
+  const BlogCard = () => {
+    return (
+      <Card>
+        <Card.Img variant="top" src="https://via.placeholder.com/160x100" />
+        <Card.Body>
+          <Card.Title>Card title</Card.Title>
+          <Card.Text>
+            This is a wider card with supporting text below as a natural lead-in
+            to additional content. This content is a little bit longer.
+          </Card.Text>
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted">Last updated 3 mins ago</small>
+        </Card.Footer>
+      </Card>
+    );
+  };
 
-### `npm run build` fails to minify
+  export default BlogCard;
+  ```
+- In `HomePage/index.js`:
+  ```javascript
+  return (
+    <Container>
+      <Jumbotron className="text-center">
+        <h1>Social Blog</h1>
+        <p>Write about your amazing experiences.</p>
+      </Jumbotron>
+      <CardDeck>
+        <BlogCard />
+        <BlogCard />
+        <BlogCard />
+      </CardDeck>
+    </Container>
+  );
+  ```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+

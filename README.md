@@ -509,13 +509,6 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
 
 #### Create actions & reducers
 
-- To redirect user to Login Page after they registered, we define a tool `utils/history.js`:
-  ```javascript
-  import { createBrowserHistory } from "history";
-  const history = createBrowserHistory();
-  export default history;
-  ```
-
 - Setup `src/redux/constants/auth.constant.js`:
   ```javascript
   export const REGISTER_REQUEST = "AUTH.REGISTER_REQUEST";
@@ -531,14 +524,12 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
   ```javascript
   import * as types from "../constants/auth.constants";
   import api from "../api";
-  import history from "../../utils/history";
 
   const loginRequest = (email, password) => async (dispatch) => {
     dispatch({ type: types.LOGIN_REQUEST, payload: null });
     try {
       const res = await api.post("/auth/login", { email, password });
       dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
-      history.push("/");
     } catch (error) {
       dispatch({ type: types.LOGIN_FAILURE, payload: error });
     }
@@ -549,7 +540,6 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
     try {
       const res = await api.post("/users", { name, email, password });
       dispatch({ type: types.REGISTER_SUCCESS, payload: res.data.data });
-      history.push('/login');
     } catch (error) {
       dispatch({ type: types.REGISTER_FAILURE, payload: error });
     }

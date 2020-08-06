@@ -4,7 +4,7 @@ import Moment from "react-moment";
 
 const BlogCard = ({ blog, handleClick }) => {
   return (
-    <Card onClick={() => handleClick(blog._id)} className="item col-md-3">
+    <Card onClick={() => handleClick(blog._id)} className="item">
       <Card.Img variant="top" src="https://via.placeholder.com/160x100" />
       <Card.Body>
         <Card.Title>{blog.title}</Card.Title>

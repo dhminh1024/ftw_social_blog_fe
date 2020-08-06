@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Container, Jumbotron, CardGroup, Button } from "react-bootstrap";
+import { Container, Jumbotron, CardColumns, Button } from "react-bootstrap";
 import BlogCard from "../../components/BlogCard";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useSelector, useDispatch } from "react-redux";
@@ -38,7 +38,7 @@ const HomePage = () => {
         ) : (
           <>
             {blogs.length ? (
-              <CardGroup>
+              <CardColumns>
                 {blogs.map((blog) => (
                   <BlogCard
                     blog={blog}
@@ -46,7 +46,7 @@ const HomePage = () => {
                     handleClick={handleClickOnBlog}
                   />
                 ))}
-              </CardGroup>
+              </CardColumns>
             ) : (
               <p>There are no blogs.</p>
             )}

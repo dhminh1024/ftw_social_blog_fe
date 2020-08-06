@@ -1,6 +1,5 @@
 import * as types from "../constants/auth.constants";
 import api from "../api";
-import history from "../../utils/history";
 import { alertActions } from "./alert.actions";
 
 const loginRequest = (email, password) => async (dispatch) => {
@@ -12,8 +11,8 @@ const loginRequest = (email, password) => async (dispatch) => {
       "Bearer " + res.data.accessToken;
     const name = res.data.data.name;
     dispatch(alertActions.setAlert(`Welcome back, ${name}`, "success"));
-    history.push("/");
   } catch (error) {
+    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.LOGIN_FAILURE, payload: error });
   }
 };
@@ -23,8 +22,11 @@ const register = (name, email, password) => async (dispatch) => {
   try {
     const res = await api.post("/users", { name, email, password });
     dispatch({ type: types.REGISTER_SUCCESS, payload: res.data.data });
-    history.push("/login");
+    dispatch(
+      alertActions.setAlert("Thank you for your registration!", "success")
+    );
   } catch (error) {
+    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.REGISTER_FAILURE, payload: error });
   }
 };
@@ -39,6 +41,7 @@ const getCurrentUser = (accessToken) => async (dispatch) => {
     const res = await api.get("/users/me");
     dispatch({ type: types.GET_CURRENT_USER_SUCCESS, payload: res.data.data });
   } catch (error) {
+    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.GET_CURRENT_USER_FAILURE, payload: error });
   }
 };

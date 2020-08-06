@@ -13,8 +13,8 @@ import { blogActions } from "../../redux/actions";
 
 const AddEditBlogPage = () => {
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
+    title: "This is a test",
+    content: "Just for delete",
   });
   const loading = useSelector((state) => state.blog.loading);
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const AddEditBlogPage = () => {
         content: selectedBlog.content,
       }));
     }
-  }, []);
+  }, [addOrEdit, selectedBlog]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -30,8 +30,10 @@ const blogReducer = (state = initialState, action) => {
     case types.CREATE_BLOG_SUCCESS:
     case types.UPDATE_BLOG_FAILURE:
     case types.DELETE_BLOG_FAILURE:
-    case types.DELETE_BLOG_SUCCESS:
       return { ...state, loading: false };
+
+    case types.DELETE_BLOG_SUCCESS:
+      return { ...state, loading: false, selectedBlog: {} };
 
     case types.CREATE_REVIEW_REQUEST:
       return { ...state, submitReviewLoading: true };

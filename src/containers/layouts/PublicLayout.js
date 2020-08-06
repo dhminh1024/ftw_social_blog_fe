@@ -8,6 +8,8 @@ import RegisterPage from "../RegisterPage";
 import NotFoundPage from "./NotFoundPage";
 import AlertMsg from "./Alert";
 import BlogDetailPage from "../BlogDetailPage";
+import PrivateRoute from "../Routes/PrivateRoute";
+import AddEditBlogPage from "../AddEditBlogPage";
 
 const PublicLayout = () => {
   return (
@@ -20,6 +22,12 @@ const PublicLayout = () => {
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/register" component={RegisterPage} />
           <Route exact path="/blogs/:id" component={BlogDetailPage} />
+          <PrivateRoute exact path="/blog/add" component={AddEditBlogPage} />
+          <PrivateRoute
+            exact
+            path="/blog/edit/:id"
+            component={AddEditBlogPage}
+          />
           <Route component={NotFoundPage} />
         </Switch>
       </Container>

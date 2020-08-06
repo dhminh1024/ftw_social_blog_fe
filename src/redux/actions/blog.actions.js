@@ -45,24 +45,18 @@ const createReview = (blogId, reviewText) => async (dispatch) => {
 const createNewBlog = (title, content) => async (dispatch) => {
   dispatch({ type: types.CREATE_BLOG_REQUEST, payload: null });
   try {
-    console.log(title, content);
-    const formData = new FormData();
-    formData.append("title", "My first blog");
-    formData.append("content", "This is my blog");
-    // const res = await api.post(`/blogs`, { title, content });
-    // {
-    //   headers: {
-    //     "Content-Type": "multipart/form-data",
-    //   },
-    // });
-
+    const body = new FormData()
+    body.append("title", title)
+    body.append("content", content)
     const res = await fetch("https://social-api-cs.great.dev/blogs", {
       method: "POST",
       headers: {
-        authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjJhNWMwZDJiMTg0MjQ5MjU0Y2M1NDYiLCJpYXQiOjE1OTY2MzY2MjEsImV4cCI6MTU5NjcyMzAyMX0.pu868lTc8NROcI4q8LE_BLhQ3XSehMFfKBjGyghNjp8`,
+        authorization: `Bearer ${localStorage.getItem("accessToken")}`
       },
-      body: formData,
+      body: body
     });
+
+
     const dt = await res.json();
     console.log(dt);
 

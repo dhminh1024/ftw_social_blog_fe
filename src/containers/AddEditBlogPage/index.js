@@ -8,19 +8,20 @@ import {
   Col,
   ButtonGroup,
 } from "react-bootstrap";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams, Redirect } from "react-router-dom";
 import { blogActions } from "../../redux/actions";
 
 const AddEditBlogPage = () => {
   const [formData, setFormData] = useState({
-    title: "This is a test",
-    content: "Just for delete",
+    title: "",
+    content: "",
   });
   const loading = useSelector((state) => state.blog.loading);
   const dispatch = useDispatch();
   const history = useHistory();
   const params = useParams();
   const selectedBlog = useSelector((state) => state.blog.selectedBlog);
+  const redirectTo = useSelector((state) => state.blog.redirectTo);
   const addOrEdit = params.id ? "Edit" : "Add";
 
   useEffect(() => {
@@ -54,6 +55,8 @@ const AddEditBlogPage = () => {
     // TODO : popup confirmation modal
     dispatch(blogActions.deleteBlog(selectedBlog._id));
   };
+
+  if (redirectTo) return <Redirect to={redirectTo} />;
 
   return (
     <Container>

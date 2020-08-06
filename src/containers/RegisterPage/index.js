@@ -19,6 +19,7 @@ const RegisterPage = () => {
     password2: "",
   });
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const redirectTo = useSelector((state) => state.auth.redirectTo);
   const loading = useSelector((state) => state.auth.loading);
   const dispatch = useDispatch();
 
@@ -34,6 +35,7 @@ const RegisterPage = () => {
     dispatch(authActions.register(name, email, password));
   };
   if (isAuthenticated) return <Redirect to="/" />;
+  if (redirectTo) return <Redirect to={redirectTo} />;
 
   // // TODO: remove fake data
   // const fillFakeData = () => {

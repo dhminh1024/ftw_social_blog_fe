@@ -33,7 +33,7 @@ const blogReducer = (state = initialState, action) => {
       return { ...state, loading: false };
 
     case types.DELETE_BLOG_SUCCESS:
-      return { ...state, loading: false, selectedBlog: {} };
+      return { ...state, loading: false, selectedBlog: {}, redirectTo: "/" };
 
     case types.CREATE_REVIEW_REQUEST:
       return { ...state, submitReviewLoading: true };

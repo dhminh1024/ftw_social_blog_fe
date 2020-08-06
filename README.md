@@ -2,6 +2,14 @@
 
 ## Introduction
 
+This week we'll learn to create a social blog application using React, Redux, Redux Thunk, and React Router. The idea is an application that helps user to share their experiences after a trip in a blog post. The other users can leave reviews/comments and give "reaction" (laugh, like, sad, love, angry) to the blog post.
+
+You will be provided a backend API server with Node.js, Express, and MongoDB, which you will learn soon. So let's focus on the front-end side for now. This application is a perfect example of how your final project should look like.
+
+**IMPORTANT**
+* [Demo App](https://ftw-w6-demo.netlify.app/)
+* [API Documentation](https://documenter.getpostman.com/view/7621298/T1Dv8F6p?version=latest#a071427d-c177-49b5-b7be-50c3456b9aac)
+
 ## Implementation
 
 ### Project setup
@@ -1154,17 +1162,306 @@ Now let create the form in the Blog Detail Page and handle the submit event by d
 
 In this step, we will implement Create, Edit, and Delete Blog features for authenticated user.
 
-#### Create new blog
+#### Actions & Reducers
+- In `blog.constants.js`:
+  ```javascript
+  export const CREATE_BLOG_REQUEST = "BLOG.CREATE_BLOG_REQUEST";
+  export const CREATE_BLOG_SUCCESS = "BLOG.CREATE_BLOG_SUCCESS";
+  export const CREATE_BLOG_FAILURE = "BLOG.CREATE_BLOG_FAILURE";
+
+  export const UPDATE_BLOG_REQUEST = "BLOG.UPDATE_BLOG_REQUEST";
+  export const UPDATE_BLOG_SUCCESS = "BLOG.UPDATE_BLOG_SUCCESS";
+  export const UPDATE_BLOG_FAILURE = "BLOG.UPDATE_BLOG_FAILURE";
+
+  export const DELETE_BLOG_REQUEST = "BLOG.DELETE_BLOG_REQUEST";
+  export const DELETE_BLOG_SUCCESS = "BLOG.DELETE_BLOG_SUCCESS";
+  export const DELETE_BLOG_FAILURE = "BLOG.DELETE_BLOG_FAILURE";
+  ```
+
+- In `blog.actions.js`:
+  ```javascript
+  const createNewBlog = (title, content) => async (dispatch) => {
+    dispatch({ type: types.CREATE_BLOG_REQUEST, payload: null });
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      const res = await api.post("/blogs", formData);
+
+      dispatch({
+        type: types.CREATE_BLOG_SUCCESS,
+        payload: res.data.data,
+      });
+      dispatch(alertActions.setAlert("New blog has been created!", "success"));
+    } catch (error) {
+      dispatch({ type: types.CREATE_BLOG_FAILURE, payload: error });
+    }
+  };
+
+  const updateBlog = (blogId, title, content) => async (dispatch) => {
+    dispatch({ type: types.UPDATE_BLOG_REQUEST, payload: null });
+    try {
+      // let formData = new FormData();
+      // formData.set("title", title);
+      // formData.set("content", content);
+      const res = await api.put(`/blogs/${blogId}`, { title, content });
+
+      dispatch({
+        type: types.UPDATE_BLOG_SUCCESS,
+        payload: res.data.data,
+      });
+      dispatch(alertActions.setAlert("The blog has been updated!", "success"));
+    } catch (error) {
+      dispatch({ type: types.UPDATE_BLOG_FAILURE, payload: error });
+    }
+  };
+
+  const deleteBlog = (blogId) => async (dispatch) => {
+    dispatch({ type: types.DELETE_BLOG_REQUEST, payload: null });
+    try {
+      const res = await api.delete(`/blogs/${blogId}`);
+      console.log(res);
+      dispatch({
+        type: types.DELETE_BLOG_SUCCESS,
+        payload: res.data,
+      });
+      dispatch(alertActions.setAlert("The blog has been deleted!", "success"));
+    } catch (error) {
+      dispatch({ type: types.DELETE_BLOG_FAILURE, payload: error });
+    }
+  };
+
+  export const blogActions = {
+    blogsRequest,
+    getSingleBlog,
+    createReview,
+    createNewBlog,
+    updateBlog,
+    deleteBlog,
+  };
+  ```
+
+- In `blog.reducer.js`:
+  ```javascript
+  const blogReducer = (state = initialState, action) => {
+    const { type, payload } = action;
+    switch (type) {
+      case types.BLOG_REQUEST:
+      case types.GET_SINGLE_BLOG_REQUEST:
+      case types.CREATE_BLOG_REQUEST:
+      case types.UPDATE_BLOG_REQUEST:
+      case types.DELETE_BLOG_REQUEST:
+        return { ...state, loading: true };
+
+      case types.BLOG_REQUEST_SUCCESS:
+        return { ...state, blogs: payload, loading: false };
+
+      case types.UPDATE_BLOG_SUCCESS:
+      case types.GET_SINGLE_BLOG_REQUEST_SUCCESS:
+        return { ...state, selectedBlog: payload, loading: false };
+
+      case types.BLOG_REQUEST_FAILURE:
+      case types.GET_SINGLE_BLOG_REQUEST_FAILURE:
+      case types.CREATE_BLOG_FAILURE:
+      case types.CREATE_BLOG_SUCCESS:
+      case types.UPDATE_BLOG_FAILURE:
+      case types.DELETE_BLOG_FAILURE:
+        return { ...state, loading: false };
+
+      case types.DELETE_BLOG_SUCCESS:
+        return { ...state, loading: false, selectedBlog: {}, redirectTo: "/" };
+
+      case types.CREATE_REVIEW_REQUEST:
+        return { ...state, submitReviewLoading: true };
+
+      case types.CREATE_REVIEW_SUCCESS:
+        return {
+          ...state,
+          submitReviewLoading: false,
+          selectedBlog: {
+            ...state.selectedBlog,
+            reviews: [...state.selectedBlog.reviews, payload],
+          },
+        };
+
+      case types.CREATE_REVIEW_FAILURE:
+        return { ...state, submitReviewLoading: false };
+      default:
+        return state;
+    }
+  };
+  ```
+
+#### Integrate with the UI
 
 - In `HomePage/index.js`, let create a button for user to start writing:
   ```javascript
+  <h1>Social Blog</h1>
+  <p>Write about your amazing experiences.</p>
+  {isAuthenticated && (
+    <Link to="/blog/add">
+      <Button variant="primary">Write now</Button>
+    </Link>
+  )}
+  ```
+- Add in `PublicLayout.js`:
+  ```javascript
+  <PrivateRoute exact path="/blog/add" component={AddEditBlogPage} />
+  <PrivateRoute exact path="/blog/edit/:id" component{AddEditBlogPage}/>
+  ```
+- We are going to use one page for create, edit and also delete. Let's create `src/containers/AddEditBlogPage/index.js`:
+  ```javascript
+  import React, { useState, useEffect } from "react";
+  import { useDispatch, useSelector } from "react-redux";
+  import {
+    Form,
+    Button,
+    Container,
+    Row,
+    Col,
+    ButtonGroup,
+  } from "react-bootstrap";
+  import { useHistory, useParams, Redirect } from "react-router-dom";
+  import { blogActions } from "../../redux/actions";
 
+  const AddEditBlogPage = () => {
+    const [formData, setFormData] = useState({
+      title: "",
+      content: "",
+    });
+    const loading = useSelector((state) => state.blog.loading);
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const params = useParams();
+    const selectedBlog = useSelector((state) => state.blog.selectedBlog);
+    const redirectTo = useSelector((state) => state.blog.redirectTo);
+    const addOrEdit = params.id ? "Edit" : "Add";
+
+    useEffect(() => {
+      if (addOrEdit === "Edit") {
+        setFormData((formData) => ({
+          ...formData,
+          title: selectedBlog.title,
+          content: selectedBlog.content,
+        }));
+      }
+    }, [addOrEdit, selectedBlog]);
+
+    const handleChange = (e) =>
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      const { title, content } = formData;
+      if (addOrEdit === "Add") {
+        dispatch(blogActions.createNewBlog(title, content));
+      } else if (addOrEdit === "Edit") {
+        dispatch(blogActions.updateBlog(selectedBlog._id, title, content));
+      }
+    };
+
+    const handleCancel = () => {
+      history.goBack();
+    };
+
+    const handleDelete = () => {
+      // TODO : popup confirmation modal
+      dispatch(blogActions.deleteBlog(selectedBlog._id));
+    };
+
+    if (redirectTo) return <Redirect to={redirectTo} />;
+
+    return (
+      <Container>
+        <Row>
+          <Col md={{ span: 6, offset: 3 }}>
+            <Form onSubmit={handleSubmit}>
+              <div className="text-center mb-3">
+                <h1 className="text-primary">{addOrEdit} blog</h1>
+                <p className="lead">
+                  <i className="fas fa-user" />
+                </p>
+              </div>
+              <Form.Group>
+                <Form.Control
+                  type="text"
+                  required
+                  placeholder="Title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Control
+                  as="textarea"
+                  rows="10"
+                  placeholder="Content"
+                  name="content"
+                  value={formData.content}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+              <ButtonGroup className="d-flex mb-3">
+                {loading ? (
+                  <Button
+                    className="mr-3"
+                    variant="primary"
+                    type="button"
+                    disabled
+                  >
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Submitting...
+                  </Button>
+                ) : (
+                  <Button className="mr-3" type="submit" variant="primary">
+                    Submit
+                  </Button>
+                )}
+                <Button variant="light" onClick={handleCancel} disabled={loading}>
+                  Cancel
+                </Button>
+              </ButtonGroup>
+              {addOrEdit === "Edit" && (
+                <ButtonGroup className="d-flex">
+                  <Button
+                    variant="danger"
+                    onClick={handleDelete}
+                    disabled={loading}
+                  >
+                    Delete Blog
+                  </Button>
+                </ButtonGroup>
+              )}
+            </Form>
+          </Col>
+        </Row>
+      </Container>
+    );
+  };
+
+  export default AddEditBlogPage;
   ```
 
-#### Edit blog
-
-#### Delete blog
-
+- In `BlogDetailPage/index.js`, let's add a button for owner to edit the blog:
+  ```javascript
+  const currentUser = useSelector((state) => state.auth.user);
+  ...
+  {currentUser?._id === blog?.user?._id ? (
+    <Link to={`/blog/edit/${blog._id}`}>
+      <Button variant="primary">Edit</Button>
+    </Link>
+  ) : (
+    <span className="text-muted">
+      @{blog?.user?.name} wrote{" "}
+      <Moment fromNow>{blog.createdAt}</Moment>
+    </span>
+  )}
+  ```
 
 ### Step 12 - Build your own features
 

@@ -29,6 +29,7 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
+        redirectTo: "/login",
       };
 
     case types.GET_CURRENT_USER_SUCCESS:

@@ -8,7 +8,6 @@ const blogsRequest = () => async (dispatch) => {
     const res = await api.get("/blogs");
     dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data.data });
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.BLOG_REQUEST_FAILURE, payload: error });
   }
 };
@@ -22,7 +21,6 @@ const getSingleBlog = (blogId) => async (dispatch) => {
       payload: res.data.data,
     });
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.GET_SINGLE_BLOG_REQUEST_FAILURE, payload: error });
   }
 };
@@ -38,7 +36,6 @@ const createReview = (blogId, reviewText) => async (dispatch) => {
       payload: res.data.data,
     });
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.CREATE_REVIEW_FAILURE, payload: error });
   }
 };
@@ -57,7 +54,6 @@ const createNewBlog = (title, content) => async (dispatch) => {
     });
     dispatch(alertActions.setAlert("New blog has been created!", "success"));
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.CREATE_BLOG_FAILURE, payload: error });
   }
 };
@@ -76,7 +72,6 @@ const updateBlog = (blogId, title, content) => async (dispatch) => {
     });
     dispatch(alertActions.setAlert("The blog has been updated!", "success"));
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.UPDATE_BLOG_FAILURE, payload: error });
   }
 };
@@ -92,7 +87,6 @@ const deleteBlog = (blogId) => async (dispatch) => {
     });
     dispatch(alertActions.setAlert("The blog has been deleted!", "success"));
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.DELETE_BLOG_FAILURE, payload: error });
   }
 };

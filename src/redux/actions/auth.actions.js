@@ -12,7 +12,6 @@ const loginRequest = (email, password) => async (dispatch) => {
     const name = res.data.data.name;
     dispatch(alertActions.setAlert(`Welcome back, ${name}`, "success"));
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.LOGIN_FAILURE, payload: error });
   }
 };
@@ -26,7 +25,6 @@ const register = (name, email, password) => async (dispatch) => {
       alertActions.setAlert("Thank you for your registration!", "success")
     );
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.REGISTER_FAILURE, payload: error });
   }
 };
@@ -41,7 +39,6 @@ const getCurrentUser = (accessToken) => async (dispatch) => {
     const res = await api.get("/users/me");
     dispatch({ type: types.GET_CURRENT_USER_SUCCESS, payload: res.data.data });
   } catch (error) {
-    dispatch(alertActions.setAlert(error.message, "danger"));
     dispatch({ type: types.GET_CURRENT_USER_FAILURE, payload: error });
   }
 };

@@ -31,20 +31,19 @@ const RegisterPage = () => {
       setErrors({ ...errors, password2: "Passwords do not match" });
       return;
     }
-    // TODO: handle Register
     dispatch(authActions.register(name, email, password));
   };
   if (isAuthenticated) return <Redirect to="/" />;
 
-  // TODO: remove fake data
-  const fillFakeData = () => {
-    setFormData({
-      name: "Minh",
-      email: "minh@cs.vn",
-      password: "123",
-      password2: "123",
-    });
-  };
+  // // TODO: remove fake data
+  // const fillFakeData = () => {
+  //   setFormData({
+  //     name: "Minh",
+  //     email: "minh@cs.vn",
+  //     password: "123",
+  //     password2: "123",
+  //   });
+  // };
   return (
     <Container>
       <Row>
@@ -124,14 +123,14 @@ const RegisterPage = () => {
             )}
 
             {/* TODO: remove fake data */}
-            <Button
+            {/* <Button
               className="btn-block"
               type="button"
               variant="light"
               onClick={fillFakeData}
             >
               Fill in fake data
-            </Button>
+            </Button> */}
 
             <p>
               Already have an account? <Link to="/login">Sign In</Link>

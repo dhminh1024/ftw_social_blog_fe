@@ -5,10 +5,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../redux/actions";
 
 const LoginPage = () => {
-  // TODO: remove fake data
   const [formData, setFormData] = useState({
-    email: "minh@cs.vn",
-    password: "123",
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState({
     email: "",

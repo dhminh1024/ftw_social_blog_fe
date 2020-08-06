@@ -4,8 +4,10 @@ import { alertActions } from "./actions";
 
 const api = axios.create({
   baseURL: "https://social-api-cs.great.dev/",
+  // baseURL: "http://localhost:5000/",
   headers: {
     "Content-Type": "application/json",
+    // authorization: "Bearer "+ localStorage.getItem("accessToken")
   },
 });
 /**

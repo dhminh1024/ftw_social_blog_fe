@@ -1,19 +1,23 @@
 import React from "react";
 import { Card } from "react-bootstrap";
+import Moment from "react-moment";
 
-const BlogCard = () => {
+const BlogCard = ({ blog, handleClick }) => {
   return (
-    <Card>
+    <Card onClick={() => handleClick(blog._id)} className="item">
       <Card.Img variant="top" src="https://via.placeholder.com/160x100" />
       <Card.Body>
-        <Card.Title>Card title</Card.Title>
+        <Card.Title>{blog.title}</Card.Title>
         <Card.Text>
-          This is a wider card with supporting text below as a natural lead-in
-          to additional content. This content is a little bit longer.
+          {blog.content.length <= 99
+            ? blog.content
+            : blog.content.slice(0, 99) + "..."}
         </Card.Text>
       </Card.Body>
       <Card.Footer>
-        <small className="text-muted">Last updated 3 mins ago</small>
+        <span className="text-muted">
+          @{blog?.user?.name} wrote <Moment fromNow>{blog.createdAt}</Moment>
+        </span>
       </Card.Footer>
     </Card>
   );

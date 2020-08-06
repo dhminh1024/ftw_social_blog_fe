@@ -14,6 +14,7 @@
   npm i redux react-redux redux-thunk redux-devtools-extension
   npm i react-router-dom
   npm i bootstrap react-bootstrap
+  npm i react-markdown react-spinners moment react-moment
   npm i axios uuid
   ```
 
@@ -31,6 +32,9 @@
 ```
 |- src\
     |- components\
+        |- BlogCard.js
+        |- ReviewBlog.js
+        |- ReviewList.js
     |- containers\
         |- HomePage\
         |- LoginPage\
@@ -137,7 +141,7 @@
     });
     const handleChange = (e) =>
       setFormData({ ...formData, [e.target.name]: e.target.value });
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
       e.preventDefault();
       const { password, password2 } = formData;
       if (password !== password2) {
@@ -329,5 +333,856 @@
   );
   ```
 
+### Step 3 - Redux Configuration
+
+Time to add the logic. Let's connect to the server and get the list of blogs.
+
+#### Redux
+
+- **Redux Store configuaration:**
+  - Create `src/redux/store.js`:
+  ```javascript
+  import { createStore, applyMiddleware } from "redux";
+  import { composeWithDevTools } from "redux-devtools-extension";
+  import thunk from "redux-thunk";
+  import rootReducer from "./reducers";
+
+  const initialState = {};
+  const store = createStore(
+    rootReducer,
+    initialState,
+    composeWithDevTools(applyMiddleware(thunk))
+  );
+
+  export default store;
+  ```
+
+  - In `src/index.js`:
+  ```javascript
+  import store from "./redux/store";
+  ...
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  )
+  ```
+
+- **Setup constants, actions and reducers for getting blogs from API:**
+  - Create `src/redux/reducers/index.js`:
+  ```javascript
+  import { combineReducers } from "redux";
+  import blogReducer from "./blog.reducer";
+
+  export default combineReducers({
+    blog: blogReducer,
+  });
+  ```
+
+  - Create `src/redux/constants/blog.constants.js`:
+  ```javascript
+  export const BLOG_REQUEST = "BLOG.BLOG_REQUEST";
+  export const BLOG_REQUEST_SUCCESS = "BLOG.BLOG_REQUEST_SUCCESS";
+  export const BLOG_REQUEST_FAILURE = "BLOG.BLOG_REQUEST_FAILURE";
+  ```
+
+  - Create `src/redux/actions/blog.actions.js`:
+  ```javascript
+  import * as types from "../constants/blog.constants";
+  import api from "../api";
+
+  const blogsRequest = () => async (dispatch) => {
+    dispatch({ type: types.BLOG_REQUEST, payload: null });
+    try {
+      const res = await api.get("/blogs");
+      dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data });
+    } catch (error) {
+      dispatch({ type: types.BLOG_REQUEST_FAILURE, payload: error });
+    }
+  };
+
+  export const blogActions = {
+    blogsRequest,
+  };
+  ```
+
+  - Create `src/redux/reducers/blog.reducer.js`:
+  ```javascript
+  import * as types from "../constants/blog.constants";
+
+  const initialState = {
+    blogs: [],
+    loading: false,
+  };
+
+  const blogReducer = (state = initialState, action) => {
+    const { type, payload } = action;
+    switch (type) {
+      case types.BLOG_REQUEST:
+        return { ...state, loading: true };
+      case types.BLOG_REQUEST_SUCCESS:
+        return { ...state, blogs: payload, loading: false };
+      case types.BLOG_REQUEST_FAILURE:
+        console.log(payload);
+        return { ...state, loading: false };
+      default:
+        return state;
+    }
+  };
+
+  export default blogReducer;
+  ```
+
+- **API service:** Create `src/redux/api.js`
+  ```javascript
+  import axios from "axios";
+  import store from "./store";
+
+  const api = axios.create({
+    baseURL: "https://social-api-cs.great.dev/",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  /**
+   * console.log all requests and responses
+   */
+  api.interceptors.request.use(
+    (request) => {
+      console.log("Starting Request", request);
+      return request;
+    },
+    function (error) {
+      console.log("REQUEST ERROR", error);
+    }
+  );
+
+  api.interceptors.response.use(
+    (response) => {
+      console.log("Response:", response);
+      return response;
+    },
+    function (error) {
+      error = error.response.data;
+      console.log("RESPONSE ERROR", error);
+      return Promise.reject(error);
+    }
+  );
+
+  export default api;
+  ```
+
+- Add fetching data in `HomePage/index.js`:
+  ```javascript
+  import { useSelector, useDispatch } from "react-redux";
+  import { blogActions } from "../../redux/actions";
+  ...
+  const HomePage = () => {
+    const dispatch = useDispatch();
+    const loading = useSelector((state) => state.blog.loading);
+    const blogs = useSelector((state) => state.blog.blogs);
+
+    useEffect(() => {
+      dispatch(blogActions.blogsRequest());
+    }, [dispatch]);
+    ...
+    {loading ? (
+      <ClipLoader color="#f86c6b" size={150} loading={loading} />
+    ) : (
+      <>
+        {blogs.length ? (
+          <CardDeck>
+            {blogs.map((blog) => (
+              <BlogCard blog={blog} key={blog._id} />
+            ))}
+          </CardDeck>
+        ) : (
+          <p>There are no blogs.</p>
+        )}
+      </>
+    )}
+  ```
+
+- Destructure the prop `blog` in `BlogCard` and fill the data in.
+
+### Step 4 - Authentication
+
+#### Create actions & reducers
+
+- To redirect user to Login Page after they registered, we define a tool `utils/history.js`:
+  ```javascript
+  import { createBrowserHistory } from "history";
+  const history = createBrowserHistory();
+  export default history;
+  ```
+
+- Setup `src/redux/constants/auth.constant.js`:
+  ```javascript
+  export const REGISTER_REQUEST = "AUTH.REGISTER_REQUEST";
+  export const REGISTER_SUCCESS = "AUTH.REGISTER_SUCCESS";
+  export const REGISTER_FAILURE = "AUTH.REGISTER_FAILURE";
+
+  export const LOGIN_REQUEST = "AUTH.LOGIN_REQUEST";
+  export const LOGIN_SUCCESS = "AUTH.LOGIN_SUCCESS";
+  export const LOGIN_FAILURE = "AUTH.LOGIN_FAILURE";
+  ```
+
+- Setup `src/redux/actions/auth.actions.js`:
+  ```javascript
+  import * as types from "../constants/auth.constants";
+  import api from "../api";
+  import history from "../../utils/history";
+
+  const loginRequest = (email, password) => async (dispatch) => {
+    dispatch({ type: types.LOGIN_REQUEST, payload: null });
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
+      history.push("/");
+    } catch (error) {
+      dispatch({ type: types.LOGIN_FAILURE, payload: error });
+    }
+  };
+
+  const register = (name, email, password) => async (dispatch) => {
+    dispatch({ type: types.REGISTER_REQUEST, payload: null });
+    try {
+      const res = await api.post("/users", { name, email, password });
+      dispatch({ type: types.REGISTER_SUCCESS, payload: res.data.data });
+      history.push('/login');
+    } catch (error) {
+      dispatch({ type: types.REGISTER_FAILURE, payload: error });
+    }
+  };
+
+  export const authActions = {
+    loginRequest,
+    register,
+  };
+
+  ```
+
+- Setup `src/redux/reducers/auth.reducer.js`:
+  ```javascript
+  import * as types from "../constants/auth.constants";
+  const initialState = {
+    user: {},
+    isAuthenticated: false,
+    loading: false,
+  };
+
+  const authReducer = (state = initialState, action) => {
+    const { type, payload } = action;
+
+    switch (type) {
+      case types.LOGIN_REQUEST:
+      case types.REGISTER_REQUEST:
+        return { ...state, loading: true };
+      case types.LOGIN_SUCCESS:
+        return {
+          ...state,
+          user: payload,
+          loading: false,
+          isAuthenticated: true,
+        };
+      case types.LOGIN_FAILURE:
+      case types.REGISTER_FAILURE:
+        return { ...state, loading: false };
+      case types.REGISTER_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+        };
+      default:
+        return state;
+    }
+  };
+
+  export default authReducer;
+  ```
+
+- In `src/redux/actions/index.js`, add `export * from "./auth.actions";`
+- In `src/redux/reducers/index.js`, add `authReducer`
+
+#### Integrate with UI components
+
+- In `RegisterPage/index.js`:
+  - Remove the props
+  - Import:
+  ```javascript
+  import { useSelector, useDispatch } from "react-redux";
+  import { authActions } from "../../redux/actions";
+  ```
+  - Connect with the store and dispatch action in `handleSubmit()`:
+  ```javascript
+  const RegisterPage = () => {
+    ...
+    const dispatch = useDispatch();
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const loading = useSelector((state) => state.auth.loading);
+    ...
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      const { name, email, password, password2 } = formData;
+      if (password !== password2) {
+        setErrors({ ...errors, password2: "Passwords do not match" });
+        return;
+      }
+      dispatch(authActions.register(name, email, password));
+    };
+  }
+  ```
+
+- In `LoginPage/index.js`:
+  - Remove the props
+  - Import:
+  ```javascript
+  import { useSelector, useDispatch } from "react-redux";
+  import { authActions } from "../../redux/actions";
+  ```
+  - Connect with the store and dispatch action in `handleSubmit()`:
+  ```javascript
+  const LoginPage = () => {
+    ...
+    const dispatch = useDispatch();
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const loading = useSelector((state) => state.auth.loading);
+    ...
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      // Validate data if needed
+      const { email, password } = formData;
+      dispatch(authActions.loginRequest(email, password));
+    };
+  }
+  ```
+
+### Step 5 - Error Handling and Showing Messages
+
+#### Create a global store `alert`
+
+This global store contains a list of messages. Each message has an id, content and type (e.g. Error, Success). The id is generate by the library `uuid` to be unique. Each message will be showed for 5 seconds before being removed.
+
+- Create `constants/alert.constants.js`:
+  ```javascript
+  export const SET_ALERT = "ALERT.SET_ALERT";
+  export const REMOVE_ALERT = "ALERT.REMOVE_ALERT";
+  ```
+- Create `actions/alert.actions.js`:
+  ```javascript
+  import { v4 as uuidv4 } from "uuid";
+  import * as types from "../constants/alert.constants";
+
+  const setAlert = (msg, alertType, timeout = 5000) => (dispatch) => {
+    const id = uuidv4();
+    dispatch({
+      type: types.SET_ALERT,
+      payload: { msg, alertType, id },
+    });
+
+    setTimeout(
+      () => dispatch({ type: types.REMOVE_ALERT, payload: id }),
+      timeout
+    );
+  };
+
+  export const alertActions = {
+    setAlert,
+  };
+  ```
+- In `actions/index.js`, insert `export * from "./alert.actions";`
+- Create `reducers/alert.reducer.js`:
+  ```javascript
+  import * as types from "../constants/alert.constants";
+  const initialState = [];
+
+  const alertReducer = (state = initialState, action) => {
+    const { type, payload } = action;
+
+    switch (type) {
+      case types.SET_ALERT:
+        return [...state, payload];
+      case types.REMOVE_ALERT:
+        return state.filter((alert) => alert.id !== payload);
+      default:
+        return state;
+    }
+  };
+
+  export default alertReducer;
+  ```
+- In `reducers/index.js`, insert `alertReducer`
+
+#### Creating the Alert component:
+
+- Create `layouts/Alert.js`:
+  ```javascript
+  import React from "react";
+  import { useSelector } from "react-redux";
+  import { Alert } from "react-bootstrap";
+
+  const AlertMsg = () => {
+    const alerts = useSelector((state) => state.alert);
+    return (
+      alerts !== null &&
+      alerts.length > 0 &&
+      alerts.map((alert) => (
+        <Alert key={alert.id} variant={alert.alertType}>
+          {alert.msg}
+        </Alert>
+      ))
+    );
+  };
+
+  export default AlertMsg;
+  ```
+- In `layouts/PublicLayout.js`, add `AlertMsg`:
+  ```javascript
+  <PublicNavbar />
+    <Container>
+      <AlertMsg/>
+      ...
+  ```
+
+#### Dispatch setAlert
+
+Here we will dispatch the error message in `api.js` to capture all of the errors responsed by the server:
+
+- In `src/redux/api.js`:
+  - Import:
+  ```javascript
+  import store from "./store";
+  import { alertActions } from "./actions";
+  ```
+  - In the callback function to handle error, add:
+  ```javascript
+    console.log("RESPONSE ERROR", error);
+    store.dispatch(alertActions.setAlert(error.message, "danger"));
+    return Promise.reject(error);
+  ```
+
+Another example is dispatch a welcome message when user logged in:
+
+- In `actions/auth.actions.js`:
+  - Import `import { alertActions } from "./alert.actions";`
+  - After dispatch LOGIN_SUCCESS, add:
+  ```javascript
+  dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
+  const name = res.data.data.name;
+  dispatch(alertActions.setAlert(`Welcome back, ${name}`, "success"));
+  ```
+
+### Step 6 - Persist login state on refresh
+
+- Connect the Navbar with the state of user in the store: in `PublicNavbar/index.js`
+  ```javascript
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loading = useSelector((state) => state.auth.loading);
+  ```
+- **Persist login state**: the idea is storing the accessToken and after browser refreshing, request the user info from the server again.
+  - Using `window.localStorage` to store the `accessToken`:
+    - In `actions/auth.actions.js`, change `res.data.data` to `res.data`:
+    ```javascript
+    dispatch({ type: types.LOGIN_SUCCESS, payload: res.data });
+    ```
+    - In `auth.reducer.js`, add `accessToken:localStorage.getItem('accessToken')` to the `initialState`. Then modify the case `LOGIN_SUCCESS` like this
+    ```javascript
+    case types.LOGIN_SUCCESS:
+      localStorage.setItem("accessToken", payload.accessToken)
+      return {
+        ...state,
+        user: { ...payload.data },
+        accessToken: payload.accessToken,
+        loading: false,
+        isAuthenticated: true,
+      };
+    ```
+    - Open the browser dev tool, in the tab `Application` -> `Locale Storage`, you can find the `accessToken`
+  - Define a new action in `auth` to get the current user back:
+    - Define the types in `auth.constants.js`:
+    ```javascript
+    export const GET_CURRENT_USER_REQUEST = "AUTH.GET_CURRENT_USER_REQUEST";
+    export const GET_CURRENT_USER_SUCCESS = "AUTH.GET_CURRENT_USER_SUCCESS";
+    export const GET_CURRENT_USER_FAILURE = "AUTH.GET_CURRENT_USER_FAILURE";
+    ```
+    - Define the middleware thunk in `auth.actions.js`. Remember to add it to `export const authActions = {...}`
+    ```javascript
+    const getCurrentUser = (accessToken) => async (dispatch) => {
+      dispatch({ type: types.GET_CURRENT_USER_REQUEST, payload: null });
+      if (accessToken) {
+        const bearerToken = "Bearer " + accessToken;
+        api.defaults.headers.common["authorization"] = bearerToken;
+      }
+      try {
+        const res = await api.get("/users/me");
+        dispatch({ type: types.GET_CURRENT_USER_SUCCESS, payload: res.data.data });
+      } catch (error) {
+        dispatch({ type: types.GET_CURRENT_USER_FAILURE, payload: error });
+      }
+    };
+    ```
+    - In `auth.reducer.js`:
+    ```javascript
+    switch (type) {
+      case types.LOGIN_REQUEST:
+      case types.REGISTER_REQUEST:
+      case types.GET_CURRENT_USER_REQUEST:
+        return { ...state, loading: true };
+      ...
+      case types.GET_CURRENT_USER_SUCCESS:
+        return {
+          ...state,
+          user: payload,
+          loading: false,
+          isAuthenticated: true,
+        };
+
+      case types.LOGIN_FAILURE:
+      case types.REGISTER_FAILURE:
+      case types.GET_CURRENT_USER_FAILURE:
+        return { ...state, loading: false };
+    ```
+  - When user refresh the browser, the app will initialize again. So we should put the the request to get current user in `App.js`:
+  ```javascript
+  function App() {
+    const dispatch = useDispatch();
+    useEffect(() => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (accessToken && accessToken !== "undefined") {
+        dispatch(authActions.getCurrentUser(accessToken));
+      }
+    }, [dispatch]);
+  ```
+
+### Step 7 - Logout
+
+We should tell the server that the user want to logout. But keep it simple for bow by removing user info and access token in the frontend side.
+
+- In `auth.constants.js`, add `export const LOGOUT = "AUTH.LOGOUT";`
+- In `auth.actions.js`, add
+  ```javascript
+  const logout = () => (dispatch) => {
+    delete api.defaults.headers.common["authorization"];
+    localStorage.setItem("accessToken", "");
+    dispatch({ type: types.LOGOUT, payload: null });
+  };
+  export const authActions = {
+    ...
+    logout,
+  };
+  ```
+- In `auth.reducer.js`:
+  ```javascript
+  case types.LOGOUT:
+    return {
+      ...state,
+      accessToken: null,
+      isAuthenticated: false,
+      user: null,
+      loading: false,
+    };
+  ```
+- In `PublicNavbar.js`:
+  ```javascript
+  const handleLogout = () => {
+    
+  };
+  ```
+
+### Step 9 - Show blog detail
+
+In this step, we will implement a new page to show detail of a specific blog that user clicked on. On that page, authenticated user can write review, interact by emoji icons.
+
+- Create a empty `src/containers/BlogDetailPage/index.js`: `rface`, then put  `<h1>Blog Detail</h1>` in the `return`.
+- Add a new route `\blogs\:id` in `PublicLayout`: `<Route exact path="/blogs/:id" component={BlogDetailPage} />`
+- In `HomePage/index.js`, create a function to handle click event, and pass it to the `<BlogCard>` component
+  ```javascript
+  import { useHistory } from "react-router-dom";
+  ...
+  const handleClickOnBlog = (id) => {
+    history.push(`/blogs/${id}`);
+  };
+  ...
+  <BlogCard
+    blog={blog}
+    key={blog._id}
+    handleClick={handleClickOnBlog}
+  />
+  ```
+- In `src/components/BlogCard.js`
+  ```javascript
+  const BlogCard = ({ blog, handleClick }) => {
+    return (
+      <Card onClick={() => handleClick(blog._id)}
+  ```
+- Now you can click on a blog and the app will lead you to the Blog Detail Page. 
+
+Next, we will capture the blog id in the url that links to Blog Detail Page. Then we can dispatch a new action to get detail information of the blog:
+
+- In `blog.constants.js`:
+  ```javascript
+  export const GET_SINGLE_BLOG_REQUEST = "BLOG.GET_SINGLE_BLOG_REQUEST";
+  export const GET_SINGLE_BLOG_REQUEST_SUCCESS = "BLOG.GET_SINGLE_BLOG_REQUEST_SUCCESS";
+  export const GET_SINGLE_BLOG_REQUEST_FAILURE = "BLOG.GET_SINGLE_BLOG_REQUEST_FAILURE";
+  ```
+- In `blog.actions.js`, create `getSingleBlog()` (remember to add it to `export const blogActions = {...}`)
+  ```javascript
+  const getSingleBlog = (blogId) => async (dispatch) => {
+    dispatch({ type: types.GET_SINGLE_BLOG_REQUEST, payload: null });
+    try {
+      const res = await api.get(`/blogs/${blogId}`);
+      dispatch({
+        type: types.GET_SINGLE_BLOG_REQUEST_SUCCESS,
+        payload: res.data.data,
+      });
+    } catch (error) {
+      dispatch({ type: types.GET_SINGLE_BLOG_REQUEST_FAILURE, payload: error });
+    }
+  };
+  ```
+- Add the new action types into `blog.reducer.js`
+  ```javascript
+  case types.BLOG_REQUEST:
+  case types.GET_SINGLE_BLOG_REQUEST:
+    return { ...state, loading: true };
+
+  case types.BLOG_REQUEST_SUCCESS:
+    return { ...state, blogs: payload, loading: false };
+
+  case types.GET_SINGLE_BLOG_REQUEST_SUCCESS:
+    return { ...state, selectedBlog: payload, loading: false};
+    
+  case types.BLOG_REQUEST_FAILURE:
+  case types.GET_SINGLE_BLOG_REQUEST_FAILURE
+    return { ...state, loading: false };
+  ```
+- Trigger the fetching process in `BlogDetail/index.js`
+  ```javascript
+  const BlogDetailPage = () => {
+    const params = useParams();
+    const dispatch = useDispatch();
+    const blog = useSelector((state) => state.blog.selectedBlog);
+
+    useEffect(() => {
+      if (params?.id) {
+        dispatch(blogActions.getSingleBlog(params.id));
+      }
+    }, [dispatch]);
+
+    return (
+      <div>
+        <h1>{blog.title}</h1>
+      </div>
+    );
+  };
+  ```
+- You should see the title of the blog that you clicked on. More info of the blog is in the variable `blog`. Time for design a nice page. Or you can use this minimal version:
+  ```javascript
+  return (
+    <>
+      {loading ? (
+        <ClipLoader color="#f86c6b" size={150} loading={loading} />
+      ) : (
+        <>
+          {blog && (
+            <div className="mb-5">
+              <h1>{blog.title}</h1>
+              <span className="text-muted">
+                @{blog?.user?.name} wrote{" "}
+                <Moment fromNow>{blog.createdAt}</Moment>
+              </span>
+              <hr />
+              <Markdown source={blog.content} />
+              <hr />
+              <ReviewList reviews={blog.reviews} />
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
+  ```
+- `Markdown` component is imported from `react-markdown`. `ReviewList` is a stateless component to show the reviews. In `src/components/ReviewList.js`:
+  ```javascript
+  const ReviewList = ({ reviews }) => {
+    return (
+      <>
+        {reviews?.length > 0 && (
+          <ul className="list-unstyled">
+            {reviews.map((review) => (
+              <ReviewContent review={review} key={review._id} />
+            ))}
+          </ul>
+        )}
+      </>
+    );
+  };
+
+  const ReviewContent = ({ review }) => {
+    return (
+      <div>
+        <span className="text-muted">@{review?.user?.name}: </span>
+        <span> {review.content} </span>
+      </div>
+    );
+  };
+
+  export default ReviewList;
+  ```
+
+### Step 10 - Adding review to a blog
+
+In this step, we will add a form to submit review in the Blog Detail Page. The review will be post to the backend API `blogs\:id\reviews` which `id` is the blog's ID. First, let's prepare the action to post review:
+
+- In `blog.constants.js`:
+  ```javascript
+  export const CREATE_REVIEW_REQUEST = "BLOG.CREATE_REVIEW_REQUEST";
+  export const CREATE_REVIEW_SUCCESS = "BLOG.CREATE_REVIEW_SUCCESS";
+  export const CREATE_REVIEW_FAILURE = "BLOG.CREATE_REVIEW_FAILURE";
+  ```
+- In `blog.actions.js`: (remember to add the new actions to `export const blogActions = {...}`)
+  ```javascript
+  const createReview = (blogId, reviewText) => async (dispatch) => {
+    dispatch({ type: types.CREATE_REVIEW_REQUEST, payload: null });
+    try {
+      const res = await api.post(`/blogs/${blogId}/reviews`, {
+        content: reviewText,
+      });
+      dispatch({
+        type: types.CREATE_REVIEW_SUCCESS,
+        payload: res.data.data,
+      });
+    } catch (error) {
+      dispatch({ type: types.CREATE_REVIEW_FAILURE, payload: error });
+    }
+  };
+  ```
+- In `blog.reducer.js`:
+  ```javascript
+  case types.CREATE_REVIEW_REQUEST:
+    return { ...state, submitReviewLoading: true };
+
+  case types.CREATE_REVIEW_SUCCESS:
+    return {
+      ...state,
+      submitReviewLoading: false,
+      selectedBlog: {
+        ...state.selectedBlog,
+        reviews: [...state.selectedBlog.reviews, payload],
+      },
+    };
+
+  case types.CREATE_REVIEW_FAILURE:
+    return { ...state, submitReviewLoading: false };
+  ```
+
+Now let create the form in the Blog Detail Page and handle the submit event by dispatching the `createReview()` action. 
+- In `BlogDetailPage/index.js`:
+  ```javascript
+  const BlogDetailPage = () => {
+    ...
+    const submitReviewLoading = useSelector(
+      (state) => state.blog.submitReviewLoading
+    );
+    const [reviewText, setReviewText] = useState("");
+
+    const handleInputChange = (e) => {
+      setReviewText(e.target.value);
+    };
+
+    const handleSubmitReview = (e) => {
+      e.preventDefault();
+      dispatch(blogActions.createReview(blog._id, reviewText));
+      setReviewText("");
+    };
+    ...
+    return (
+      ...
+      {blog && ( 
+        ...
+      )}
+
+      {isAuthenticated && (
+        <ReviewBlog
+          reviewText={reviewText}
+          handleInputChange={handleInputChange}
+          handleSubmitReview={handleSubmitReview}
+          loading={submitReviewLoading}
+        />
+      )}
+    );
+  };
+  ```
+- Create `src/components/ReviewBlog.js`:
+  ```javascript
+  import React from "react";
+  import { Form, Button, Row, Col } from "react-bootstrap";
+
+  const ReviewBlog = ({
+    reviewText,
+    handleInputChange,
+    handleSubmitReview,
+    loading,
+  }) => {
+    return (
+      <Form onSubmit={handleSubmitReview}>
+        <Form.Group as={Row}>
+          <Form.Label htmlFor="review" column sm="2">
+            Review:
+          </Form.Label>
+          <Col sm="8">
+            <Form.Control
+              id="review"
+              type="text"
+              value={reviewText}
+              onChange={handleInputChange}
+            />
+          </Col>
+          {loading ? (
+            <Button variant="primary" type="button" disabled>
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              Submitting...
+            </Button>
+          ) : (
+            <Button type="submit" disabled={!reviewText}>
+              Submit
+            </Button>
+          )}
+        </Form.Group>
+      </Form>
+    );
+  };
+
+  export default ReviewBlog;
+  ```
+
+### Step 11 - Create & Edit your own blog
+
+In this step, we will implement Create, Edit, and Delete Blog features for authenticated user.
+
+#### Create new blog
+
+- In `HomePage/index.js`, let create a button for user to start writing:
+  ```javascript
+
+  ```
+
+#### Edit blog
+
+#### Delete blog
 
 
+### Step 12 - Build your own features
+
+Congratulation, you have done a great job to go to this point. It's time for you to walk on your own feet. Look at the backend API documentation and figure out any feature you can add to the app. Some suggestions:
+
+- Blog Pagination
+- User can see a list of users with pagination
+- User can add friends
+- User can react with blogs or reviews with emoji icon (called `reactions` in the backend API)
+- User can see his/her profile and update it
+- User has a dashboard layout to manage his/her blogs, friends

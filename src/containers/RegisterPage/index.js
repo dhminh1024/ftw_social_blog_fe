@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 
-const RegisterPage = ({ isAuthenticated, loading }) => {
+import { useSelector, useDispatch } from "react-redux";
+import { authActions } from "../../redux/actions";
+
+const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,20 +18,25 @@ const RegisterPage = ({ isAuthenticated, loading }) => {
     password: "",
     password2: "",
   });
-  const history = useHistory();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loading = useSelector((state) => state.auth.loading);
+  const dispatch = useDispatch();
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const { password, password2 } = formData;
+    const { name, email, password, password2 } = formData;
     if (password !== password2) {
       setErrors({ ...errors, password2: "Passwords do not match" });
       return;
     }
     // TODO: handle Register
-    history.push("/login");
+    dispatch(authActions.register(name, email, password));
   };
   if (isAuthenticated) return <Redirect to="/" />;
+
+  // TODO: remove fake data
   const fillFakeData = () => {
     setFormData({
       name: "Minh",
@@ -115,6 +123,7 @@ const RegisterPage = ({ isAuthenticated, loading }) => {
               </Button>
             )}
 
+            {/* TODO: remove fake data */}
             <Button
               className="btn-block"
               type="button"
@@ -123,6 +132,7 @@ const RegisterPage = ({ isAuthenticated, loading }) => {
             >
               Fill in fake data
             </Button>
+
             <p>
               Already have an account? <Link to="/login">Sign In</Link>
             </p>

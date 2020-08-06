@@ -1,9 +1,9 @@
 import axios from "axios";
 import store from "./store";
-import { alertActions } from "../_actions";
+import { alertActions } from "./actions";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001/api",
+  baseURL: "https://social-api-cs.great.dev/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -29,7 +29,9 @@ api.interceptors.response.use(
   function (error) {
     error = error.response.data;
     console.log("RESPONSE ERROR", error);
-    store.dispatch(alertActions.setAlert(error.msg, "danger"));
+    store.dispatch(alertActions.setAlert(error.message, "danger"));
     return Promise.reject(error);
   }
 );
+
+export default api;

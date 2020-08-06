@@ -2,10 +2,15 @@ import React from "react";
 import logo from "../../images/logo.svg";
 import { Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { authActions } from "../../redux/actions";
 
-const PublicNavbar = ({ isAuthenticated, loading }) => {
+const PublicNavbar = () => {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loading = useSelector((state) => state.auth.loading);
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    // TODO: handle Logout
+    dispatch(authActions.logout());
   };
   const authLinks = (
     <Nav>

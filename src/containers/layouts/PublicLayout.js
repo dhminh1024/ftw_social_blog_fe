@@ -6,16 +6,20 @@ import HomePage from "../HomePage";
 import LoginPage from "../LoginPage";
 import RegisterPage from "../RegisterPage";
 import NotFoundPage from "./NotFoundPage";
+import AlertMsg from "./Alert";
+import BlogDetailPage from "../BlogDetailPage";
 
 const PublicLayout = () => {
   return (
     <>
       <PublicNavbar />
       <Container>
+        <AlertMsg />
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/register" component={RegisterPage} />
+          <Route exact path="/blogs/:id" component={BlogDetailPage} />
           <Route component={NotFoundPage} />
         </Switch>
       </Container>

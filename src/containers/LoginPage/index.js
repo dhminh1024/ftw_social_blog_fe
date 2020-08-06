@@ -1,27 +1,33 @@
 import React, { useState } from "react";
-import { Link, Redirect, useHistory } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { useSelector, useDispatch } from "react-redux";
+import { authActions } from "../../redux/actions";
 
-const LoginPage = ({ isAuthenticated, loading }) => {
+const LoginPage = () => {
+  // TODO: remove fake data
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "minh@cs.vn",
+    password: "123",
   });
   const [errors, setErrors] = useState({
     email: "",
     password: "",
   });
-  const history = useHistory();
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loading = useSelector((state) => state.auth.loading);
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Handle submit form
-    if (formData.password.length < 6) {
-      setErrors({ ...errors, password: "Password must be longer than 6" });
+
+    if (formData.password.length < 3) {
+      setErrors({ ...errors, password: "Password must be longer than 3" });
       return;
     }
-    history.push("/");
+    const { email, password } = formData;
+    dispatch(authActions.loginRequest(email, password));
   };
   if (isAuthenticated) return <Redirect to="/" />;
 

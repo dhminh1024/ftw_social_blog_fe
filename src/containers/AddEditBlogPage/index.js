@@ -24,12 +24,12 @@ const AddEditBlogPage = () => {
   const addOrEdit = params.id ? "Edit" : "Add";
 
   useEffect(() => {
-    if (params.id === selectedBlog?._id) {
-      // setFormData({
-      //   ...formData,
-      //   title: selectedBlog.title,
-      //   content: selectedBlog.content,
-      // });
+    if (addOrEdit === "Edit") {
+      setFormData((formData) => ({
+        ...formData,
+        title: selectedBlog.title,
+        content: selectedBlog.content,
+      }));
     }
   }, []);
 
@@ -84,7 +84,6 @@ const AddEditBlogPage = () => {
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
-                minLength="3"
               />
             </Form.Group>
             <ButtonGroup className="d-flex mb-3">

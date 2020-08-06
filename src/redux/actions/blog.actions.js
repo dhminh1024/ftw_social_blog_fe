@@ -47,8 +47,8 @@ const createNewBlog = (title, content) => async (dispatch) => {
   try {
     console.log(title, content);
     const formData = new FormData();
-    formData.append("title", "My first blog");
-    formData.append("content", "This is my blog");
+    formData.append("title", title);
+    formData.append("content", content);
     // const res = await api.post(`/blogs`, { title, content });
     // {
     //   headers: {

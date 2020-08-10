@@ -1,3 +1,8 @@
+---
+title: FTW Week 6 - Social Blog
+tags: CoderSchool, FTW, Project
+---
+
 # Social Blog app
 
 ## Introduction
@@ -10,6 +15,17 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
 * [Demo App](https://ftw-w6-demo.netlify.app/)
 * [API Documentation](https://documenter.getpostman.com/view/7621298/T1Dv8F6p?version=latest#a071427d-c177-49b5-b7be-50c3456b9aac)
 
+## Vocab
+
+- **BrowserRouter** A <Router> that uses the HTML5 history API (pushState, replaceState and the popstate event) to keep your UI in sync with the URL
+- **Route** Its most basic responsibility is to render some UI when a location matches the route’s path
+- **Link** Links provide declarative, accessible navigation around your application
+- **NavLink** A special version of the <Link> that will add styling attributes to the rendered element when it matches the current URL.
+- **Redirect** Rendering a <Redirect> will navigate to a new location. The new location will override the current location in the history stack.
+- **Switch** Renders the first child <Route> or <Redirect> that matches the location. <Switch> is unique in that it renders a route exclusively (only one route wins).
+- [axios](https://github.com/axios/axios#request-config), a new tool that can replace `fetch` and has some cool features: Intercept request and response, Transform Request and Response data, Automatic transform for JSON data, Cancel requests.
+
+
 ## Implementation
 
 ### Project setup
@@ -17,8 +33,8 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
 - Create project with `create-react-app`
 
   ```javascript
-  npx create-react-app social-app
-  cd social-app
+  npx create-react-app social-blog
+  cd social-blog
   npm i redux react-redux redux-thunk redux-devtools-extension
   npm i react-router-dom
   npm i bootstrap react-bootstrap
@@ -128,7 +144,76 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
     if (isAuthenticated) return <Redirect to="/" />;
   ```
 
-- Implement UI: `<Container>...</Container>`
+- Implement UI:
+    ```javascript=
+    return (
+        <Container>
+          <Row>
+            <Col md={{ span: 6, offset: 3 }}>
+              <Form onSubmit={handleSubmit}>
+                <div className="text-center mb-3">
+                  <h1 className="text-primary">Sign In</h1>
+                  <p className="lead">
+                    <i className="fas fa-user" /> Sign Into Your Account
+                  </p>
+                </div>
+                <Form.Group>
+                  <Form.Control
+                    type="email"
+                    required
+                    placeholder="Email Address"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  {errors.email && (
+                    <small className="form-text text-danger">{errors.email}</small>
+                  )}
+                </Form.Group>
+                <Form.Group>
+                  <Form.Control
+                    type="password"
+                    placeholder="Password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    minLength="3"
+                  />
+                  {errors.password && (
+                    <small className="form-text text-danger">
+                      {errors.password}
+                    </small>
+                  )}
+                </Form.Group>
+
+                {loading ? (
+                  <Button
+                    className="btn-block"
+                    variant="primary"
+                    type="button"
+                    disabled
+                  >
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Loading...
+                  </Button>
+                ) : (
+                  <Button className="btn-block" type="submit" variant="primary">
+                    Login
+                  </Button>
+                )}
+                <p>
+                  Don't have an account? <Link to="/register">Sign Up</Link>
+                </p>
+              </Form>
+            </Col>
+          </Row>
+        </Container>
+      );
+    ```
 
 #### The Register Page
 
@@ -160,7 +245,105 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
     };
     if (isAuthenticated) return <Redirect to="/" />;
   ```
-  - Implement UI: `<Container>...</Container>`
+  - Implement UI: 
+  ```javascript
+  return (
+    <Container>
+      <Row>
+        <Col md={{ span: 6, offset: 3 }}>
+          <div className="text-center mb-3">
+            <h1 className="text-primary">Sign Up</h1>
+            <p className="lead">
+              <i className="fas fa-user" /> Create Your Account
+            </p>
+          </div>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group>
+              <Form.Control
+                type="text"
+                placeholder="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+              {errors.name && (
+                <small className="form-text text-danger">{errors.name}</small>
+              )}
+            </Form.Group>
+            <Form.Group>
+              <Form.Control
+                type="email"
+                placeholder="Email Address"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              {errors.email && (
+                <small className="form-text text-danger">{errors.email}</small>
+              )}
+            </Form.Group>
+            <Form.Group>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+              />
+              {errors.password && (
+                <small className="form-text text-danger">
+                  {errors.password}
+                </small>
+              )}
+            </Form.Group>
+            <Form.Group>
+              <Form.Control
+                type="password"
+                placeholder="Confirm Password"
+                name="password2"
+                value={formData.password2}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            {loading ? (
+              <Button
+                className="btn-block"
+                variant="primary"
+                type="button"
+                disabled
+              >
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Loading...
+              </Button>
+            ) : (
+              <Button className="btn-block" type="submit" variant="primary">
+                Register
+              </Button>
+            )}
+
+            {/* TODO: remove fake data */}
+            <Button
+              className="btn-block"
+              type="button"
+              variant="light"
+              onClick={fillFakeData}
+            >
+              Fill in fake data
+            </Button>
+
+            <p>
+              Already have an account? <Link to="/login">Sign In</Link>
+            </p>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
+  );
+  ```
   - (Optional) For convinience, you can add a button that fills in fake data:
   ```javascript
   const fillFakeData = () => {
@@ -332,11 +515,11 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
         <h1>Social Blog</h1>
         <p>Write about your amazing experiences.</p>
       </Jumbotron>
-      <CardDeck>
+      <CardColumns>
         <BlogCard />
         <BlogCard />
         <BlogCard />
-      </CardDeck>
+      </CardColumns>
     </Container>
   );
   ```
@@ -403,7 +586,7 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
     dispatch({ type: types.BLOG_REQUEST, payload: null });
     try {
       const res = await api.get("/blogs");
-      dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data });
+      dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data.data });
     } catch (error) {
       dispatch({ type: types.BLOG_REQUEST_FAILURE, payload: error });
     }
@@ -412,6 +595,11 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
   export const blogActions = {
     blogsRequest,
   };
+  ```
+  
+  - Create `src/redux/actions/index.js`:
+  ```javascript
+  export * from "./blog.actions";
   ```
 
   - Create `src/redux/reducers/blog.reducer.js`:
@@ -499,19 +687,39 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
     ) : (
       <>
         {blogs.length ? (
-          <CardDeck>
+          <CardColumns>
             {blogs.map((blog) => (
               <BlogCard blog={blog} key={blog._id} />
             ))}
-          </CardDeck>
+          </CardColumns>
         ) : (
-          <p>There are no blogs.</p>
+          <p>There are no blogs</p>
         )}
       </>
     )}
   ```
 
 - Destructure the prop `blog` in `BlogCard` and fill the data in.
+     ```javascript=
+    <Card>
+      <Card.Img variant="top" src="https://via.placeholder.com/160x100" />
+      <Card.Body>
+        <Card.Title>{blog.title}</Card.Title>
+        <Card.Text>
+          {blog.content.length <= 99
+            ? blog.content
+            : blog.content.slice(0, 99) + "..."}
+        </Card.Text>
+      </Card.Body>
+      <Card.Footer>
+        <small className="text-muted">
+          <span className="text-muted">
+            @{blog?.user?.name} wrote <Moment fromNow>{blog.createdAt}</Moment>
+          </span>
+        </small>
+      </Card.Footer>
+    </Card>
+     ```
 
 ### Step 4 - Authentication
 
@@ -851,6 +1059,12 @@ Another example is dispatch a welcome message when user logged in:
       }
     }, [dispatch]);
   ```
+  - **IMPORTANT**: the `accessToken` is the key so that the server knows who the user is, and give the user the permission to change the data (e.g. write a blog, review, etc.). So we will add `accessToken` in the headers of the request as `authorization` right after user have logged in. In `auth.actions.js`, function `loginRequest()`, let's add:
+  ```javascript
+  const res = await api.post("/auth/login", { email, password });
+  dispatch({ type: types.LOGIN_SUCCESS, payload: res.data });
+  api.defaults.headers.common["authorization"] = "Bearer " + res.data.accessToken;
+  ```
 
 ### Step 7 - Logout
 
@@ -887,7 +1101,7 @@ We should tell the server that the user want to logout. But keep it simple for b
   };
   ```
 
-### Step 9 - Show blog detail
+### Step 8 - Show blog detail
 
 In this step, we will implement a new page to show detail of a specific blog that user clicked on. On that page, authenticated user can write review, interact by emoji icons.
 
@@ -896,6 +1110,8 @@ In this step, we will implement a new page to show detail of a specific blog tha
 - In `HomePage/index.js`, create a function to handle click event, and pass it to the `<BlogCard>` component
   ```javascript
   import { useHistory } from "react-router-dom";
+  ...
+  const history = useHistory();
   ...
   const handleClickOnBlog = (id) => {
     history.push(`/blogs/${id}`);
@@ -965,7 +1181,7 @@ Next, we will capture the blog id in the url that links to Blog Detail Page. The
       if (params?.id) {
         dispatch(blogActions.getSingleBlog(params.id));
       }
-    }, [dispatch]);
+    }, [dispatch, params]);
 
     return (
       <div>
@@ -1028,7 +1244,7 @@ Next, we will capture the blog id in the url that links to Blog Detail Page. The
   export default ReviewList;
   ```
 
-### Step 10 - Adding review to a blog
+### Step 9 - Adding review to a blog
 
 In this step, we will add a form to submit review in the Blog Detail Page. The review will be post to the backend API `blogs\:id\reviews` which `id` is the blog's ID. First, let's prepare the action to post review:
 
@@ -1158,7 +1374,7 @@ Now let create the form in the Blog Detail Page and handle the submit event by d
   export default ReviewBlog;
   ```
 
-### Step 11 - Create & Edit your own blog
+### Step 10 - Create & Edit your own blog
 
 In this step, we will implement Create, Edit, and Delete Blog features for authenticated user.
 
@@ -1176,6 +1392,8 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
   export const DELETE_BLOG_REQUEST = "BLOG.DELETE_BLOG_REQUEST";
   export const DELETE_BLOG_SUCCESS = "BLOG.DELETE_BLOG_SUCCESS";
   export const DELETE_BLOG_FAILURE = "BLOG.DELETE_BLOG_FAILURE";
+  
+  export const SET_REDIRECT_TO = "BLOG.SET_REDIRECT_TO";
   ```
 
 - In `blog.actions.js`:
@@ -1230,6 +1448,11 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
       dispatch({ type: types.DELETE_BLOG_FAILURE, payload: error });
     }
   };
+  
+  const setRedirectTo = (redirectTo) => ({
+    type: types.SET_REDIRECT_TO,
+    payload: redirectTo,
+  });
 
   export const blogActions = {
     blogsRequest,
@@ -1238,56 +1461,68 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
     createNewBlog,
     updateBlog,
     deleteBlog,
+    setRedirectTo,
   };
   ```
 
 - In `blog.reducer.js`:
   ```javascript
   const blogReducer = (state = initialState, action) => {
-    const { type, payload } = action;
-    switch (type) {
-      case types.BLOG_REQUEST:
-      case types.GET_SINGLE_BLOG_REQUEST:
-      case types.CREATE_BLOG_REQUEST:
-      case types.UPDATE_BLOG_REQUEST:
-      case types.DELETE_BLOG_REQUEST:
-        return { ...state, loading: true };
+  const { type, payload } = action;
+  switch (type) {
+    case types.BLOG_REQUEST:
+    case types.GET_SINGLE_BLOG_REQUEST:
+    case types.CREATE_BLOG_REQUEST:
+    case types.UPDATE_BLOG_REQUEST:
+    case types.DELETE_BLOG_REQUEST:
+      return { ...state, loading: true };
 
-      case types.BLOG_REQUEST_SUCCESS:
-        return { ...state, blogs: payload, loading: false };
+    case types.BLOG_REQUEST_SUCCESS:
+      return { ...state, blogs: payload, loading: false };
 
-      case types.UPDATE_BLOG_SUCCESS:
-      case types.GET_SINGLE_BLOG_REQUEST_SUCCESS:
-        return { ...state, selectedBlog: payload, loading: false };
+    case types.GET_SINGLE_BLOG_REQUEST_SUCCESS:
+      return { ...state, selectedBlog: payload, loading: false };
 
-      case types.BLOG_REQUEST_FAILURE:
-      case types.GET_SINGLE_BLOG_REQUEST_FAILURE:
-      case types.CREATE_BLOG_FAILURE:
-      case types.CREATE_BLOG_SUCCESS:
-      case types.UPDATE_BLOG_FAILURE:
-      case types.DELETE_BLOG_FAILURE:
-        return { ...state, loading: false };
+    case types.UPDATE_BLOG_SUCCESS:
+      return {
+        ...state,
+        selectedBlog: payload,
+        loading: false,
+        redirectTo: "__GO_BACK__",
+      };
 
-      case types.DELETE_BLOG_SUCCESS:
-        return { ...state, loading: false, selectedBlog: {}, redirectTo: "/" };
+    case types.BLOG_REQUEST_FAILURE:
+    case types.GET_SINGLE_BLOG_REQUEST_FAILURE:
+    case types.CREATE_BLOG_FAILURE:
+    case types.UPDATE_BLOG_FAILURE:
+    case types.DELETE_BLOG_FAILURE:
+      return { ...state, loading: false };
 
-      case types.CREATE_REVIEW_REQUEST:
-        return { ...state, submitReviewLoading: true };
+    case types.CREATE_BLOG_SUCCESS:
+      return { ...state, loading: false, redirectTo: "/" };
 
-      case types.CREATE_REVIEW_SUCCESS:
-        return {
-          ...state,
-          submitReviewLoading: false,
-          selectedBlog: {
-            ...state.selectedBlog,
-            reviews: [...state.selectedBlog.reviews, payload],
-          },
-        };
+    case types.DELETE_BLOG_SUCCESS:
+      return { ...state, loading: false, selectedBlog: {}, redirectTo: "/" };
 
-      case types.CREATE_REVIEW_FAILURE:
-        return { ...state, submitReviewLoading: false };
-      default:
-        return state;
+    case types.CREATE_REVIEW_REQUEST:
+      return { ...state, submitReviewLoading: true };
+
+    case types.CREATE_REVIEW_SUCCESS:
+      return {
+        ...state,
+        submitReviewLoading: false,
+        selectedBlog: {
+          ...state.selectedBlog,
+          reviews: [...state.selectedBlog.reviews, payload],
+        },
+      };
+
+    case types.CREATE_REVIEW_FAILURE:
+      return { ...state, submitReviewLoading: false };
+    case types.SET_REDIRECT_TO:
+      return { ...state, redirectTo: payload };
+    default:
+      return state;
     }
   };
   ```
@@ -1307,7 +1542,7 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
 - Add in `PublicLayout.js`:
   ```javascript
   <PrivateRoute exact path="/blog/add" component={AddEditBlogPage} />
-  <PrivateRoute exact path="/blog/edit/:id" component{AddEditBlogPage}/>
+  <PrivateRoute exact path="/blog/edit/:id" component={AddEditBlogPage}/>
   ```
 - We are going to use one page for create, edit and also delete. Let's create `src/containers/AddEditBlogPage/index.js`:
   ```javascript
@@ -1325,125 +1560,135 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
   import { blogActions } from "../../redux/actions";
 
   const AddEditBlogPage = () => {
-    const [formData, setFormData] = useState({
-      title: "",
-      content: "",
-    });
-    const loading = useSelector((state) => state.blog.loading);
-    const dispatch = useDispatch();
-    const history = useHistory();
-    const params = useParams();
-    const selectedBlog = useSelector((state) => state.blog.selectedBlog);
-    const redirectTo = useSelector((state) => state.blog.redirectTo);
-    const addOrEdit = params.id ? "Edit" : "Add";
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+  });
+  const loading = useSelector((state) => state.blog.loading);
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const params = useParams();
+  const selectedBlog = useSelector((state) => state.blog.selectedBlog);
+  const redirectTo = useSelector((state) => state.blog.redirectTo);
+  const addOrEdit = params.id ? "Edit" : "Add";
 
-    useEffect(() => {
-      if (addOrEdit === "Edit") {
-        setFormData((formData) => ({
-          ...formData,
-          title: selectedBlog.title,
-          content: selectedBlog.content,
-        }));
-      }
-    }, [addOrEdit, selectedBlog]);
+  useEffect(() => {
+    if (addOrEdit === "Edit") {
+      setFormData((formData) => ({
+        ...formData,
+        title: selectedBlog.title,
+        content: selectedBlog.content,
+      }));
+    }
+  }, [addOrEdit, selectedBlog]);
 
-    const handleChange = (e) =>
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      const { title, content } = formData;
-      if (addOrEdit === "Add") {
-        dispatch(blogActions.createNewBlog(title, content));
-      } else if (addOrEdit === "Edit") {
-        dispatch(blogActions.updateBlog(selectedBlog._id, title, content));
-      }
-    };
-
-    const handleCancel = () => {
-      history.goBack();
-    };
-
-    const handleDelete = () => {
-      // TODO : popup confirmation modal
-      dispatch(blogActions.deleteBlog(selectedBlog._id));
-    };
-
-    if (redirectTo) return <Redirect to={redirectTo} />;
-
-    return (
-      <Container>
-        <Row>
-          <Col md={{ span: 6, offset: 3 }}>
-            <Form onSubmit={handleSubmit}>
-              <div className="text-center mb-3">
-                <h1 className="text-primary">{addOrEdit} blog</h1>
-                <p className="lead">
-                  <i className="fas fa-user" />
-                </p>
-              </div>
-              <Form.Group>
-                <Form.Control
-                  type="text"
-                  required
-                  placeholder="Title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Control
-                  as="textarea"
-                  rows="10"
-                  placeholder="Content"
-                  name="content"
-                  value={formData.content}
-                  onChange={handleChange}
-                />
-              </Form.Group>
-              <ButtonGroup className="d-flex mb-3">
-                {loading ? (
-                  <Button
-                    className="mr-3"
-                    variant="primary"
-                    type="button"
-                    disabled
-                  >
-                    <span
-                      className="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Submitting...
-                  </Button>
-                ) : (
-                  <Button className="mr-3" type="submit" variant="primary">
-                    Submit
-                  </Button>
-                )}
-                <Button variant="light" onClick={handleCancel} disabled={loading}>
-                  Cancel
-                </Button>
-              </ButtonGroup>
-              {addOrEdit === "Edit" && (
-                <ButtonGroup className="d-flex">
-                  <Button
-                    variant="danger"
-                    onClick={handleDelete}
-                    disabled={loading}
-                  >
-                    Delete Blog
-                  </Button>
-                </ButtonGroup>
-              )}
-            </Form>
-          </Col>
-        </Row>
-      </Container>
-    );
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { title, content } = formData;
+    if (addOrEdit === "Add") {
+      dispatch(blogActions.createNewBlog(title, content));
+    } else if (addOrEdit === "Edit") {
+      dispatch(blogActions.updateBlog(selectedBlog._id, title, content));
+    }
   };
 
+  const handleCancel = () => {
+    history.goBack();
+  };
+
+  const handleDelete = () => {
+    // TODO : popup confirmation modal
+    dispatch(blogActions.deleteBlog(selectedBlog._id));
+  };
+
+  useEffect(() => {
+    if (redirectTo) {
+      if (redirectTo === "__GO_BACK__") {
+        history.goBack();
+        dispatch(blogActions.setRedirectTo(""));
+      } else {
+        history.push(redirectTo);
+        dispatch(blogActions.setRedirectTo(""));
+      }
+    }
+  }, [redirectTo]);
+
+  return (
+    <Container>
+      <Row>
+        <Col md={{ span: 6, offset: 3 }}>
+          <Form onSubmit={handleSubmit}>
+            <div className="text-center mb-3">
+              <h1 className="text-primary">{addOrEdit} blog</h1>
+              <p className="lead">
+                <i className="fas fa-user" />
+              </p>
+            </div>
+            <Form.Group>
+              <Form.Control
+                type="text"
+                required
+                placeholder="Title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Control
+                as="textarea"
+                rows="10"
+                placeholder="Content"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            <ButtonGroup className="d-flex mb-3">
+              {loading ? (
+                <Button
+                  className="mr-3"
+                  variant="primary"
+                  type="button"
+                  disabled
+                >
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Submitting...
+                </Button>
+              ) : (
+                <Button className="mr-3" type="submit" variant="primary">
+                  Submit
+                </Button>
+              )}
+              <Button variant="light" onClick={handleCancel} disabled={loading}>
+                Cancel
+              </Button>
+            </ButtonGroup>
+            {addOrEdit === "Edit" && (
+              <ButtonGroup className="d-flex">
+                <Button
+                  variant="danger"
+                  onClick={handleDelete}
+                  disabled={loading}
+                >
+                  Delete Blog
+                </Button>
+              </ButtonGroup>
+            )}
+          </Form>
+        </Col>
+      </Row>
+    </Container>
+    );
+  };
+  
   export default AddEditBlogPage;
   ```
 

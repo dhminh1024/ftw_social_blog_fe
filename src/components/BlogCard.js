@@ -4,7 +4,7 @@ import Moment from "react-moment";
 
 const BlogCard = ({ blog, handleClick }) => {
   return (
-    <Card onClick={() => handleClick(blog._id)} className="item">
+    <Card onClick={() => handleClick(blog._id)}>
       <Card.Img variant="top" src="https://via.placeholder.com/160x100" />
       <Card.Body>
         <Card.Title>{blog.title}</Card.Title>
@@ -15,9 +15,11 @@ const BlogCard = ({ blog, handleClick }) => {
         </Card.Text>
       </Card.Body>
       <Card.Footer>
-        <span className="text-muted">
-          @{blog?.user?.name} wrote <Moment fromNow>{blog.createdAt}</Moment>
-        </span>
+        <small className="text-muted">
+          <span className="text-muted">
+            @{blog?.user?.name} wrote <Moment fromNow>{blog.createdAt}</Moment>
+          </span>
+        </small>
       </Card.Footer>
     </Card>
   );

@@ -14,22 +14,23 @@ const authReducer = (state = initialState, action) => {
     case types.REGISTER_REQUEST:
     case types.GET_CURRENT_USER_REQUEST:
       return { ...state, loading: true };
-
     case types.LOGIN_SUCCESS:
       localStorage.setItem("accessToken", payload.accessToken);
       return {
         ...state,
         user: { ...payload.data },
+        accessToken: payload.accessToken,
         loading: false,
         isAuthenticated: true,
-        accessToken: payload.accessToken,
       };
-
+    case types.LOGIN_FAILURE:
+    case types.REGISTER_FAILURE:
+    case types.GET_CURRENT_USER_FAILURE:
+      return { ...state, loading: false };
     case types.REGISTER_SUCCESS:
       return {
         ...state,
         loading: false,
-        redirectTo: "/login",
       };
 
     case types.GET_CURRENT_USER_SUCCESS:
@@ -40,11 +41,6 @@ const authReducer = (state = initialState, action) => {
         isAuthenticated: true,
       };
 
-    case types.LOGIN_FAILURE:
-    case types.REGISTER_FAILURE:
-    case types.GET_CURRENT_USER_FAILURE:
-      return { ...state, loading: false };
-
     case types.LOGOUT:
       return {
         ...state,
@@ -53,7 +49,6 @@ const authReducer = (state = initialState, action) => {
         user: null,
         loading: false,
       };
-
     default:
       return state;
   }

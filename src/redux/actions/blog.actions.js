@@ -40,12 +40,17 @@ const createReview = (blogId, reviewText) => async (dispatch) => {
   }
 };
 
-const createNewBlog = (title, content) => async (dispatch) => {
+const createNewBlog = (title, content, images) => async (dispatch) => {
   dispatch({ type: types.CREATE_BLOG_REQUEST, payload: null });
   try {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
+    if (images && images.lenth) {
+      for (let index = 0; index < images.length; index++) {
+        formData.append("imagesUpload", images[index]);
+      }
+    }
     const res = await api.post("/blogs", formData);
 
     dispatch({
@@ -54,6 +59,7 @@ const createNewBlog = (title, content) => async (dispatch) => {
     });
     dispatch(alertActions.setAlert("New blog has been created!", "success"));
   } catch (error) {
+    console.log(error.message);
     dispatch({ type: types.CREATE_BLOG_FAILURE, payload: error });
   }
 };
@@ -91,6 +97,11 @@ const deleteBlog = (blogId) => async (dispatch) => {
   }
 };
 
+const setRedirectTo = (redirectTo) => ({
+  type: types.SET_REDIRECT_TO,
+  payload: redirectTo,
+});
+
 export const blogActions = {
   blogsRequest,
   getSingleBlog,
@@ -98,4 +109,5 @@ export const blogActions = {
   createNewBlog,
   updateBlog,
   deleteBlog,
+  setRedirectTo,
 };

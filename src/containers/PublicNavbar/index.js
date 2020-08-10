@@ -1,9 +1,10 @@
 import React from "react";
-import logo from "../../images/logo.svg";
-import { Nav, Navbar } from "react-bootstrap";
+import { Navbar, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import logo from "../../images/logo.svg";
+import { useSelector } from "react-redux";
 import { authActions } from "../../redux/actions";
+import { useDispatch } from "react-redux";
 
 const PublicNavbar = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);

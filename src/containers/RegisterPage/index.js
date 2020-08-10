@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
-
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../redux/actions";
 
@@ -18,10 +17,10 @@ const RegisterPage = () => {
     password: "",
     password2: "",
   });
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const redirectTo = useSelector((state) => state.auth.redirectTo);
-  const loading = useSelector((state) => state.auth.loading);
+
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loading = useSelector((state) => state.auth.loading);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,20 +31,20 @@ const RegisterPage = () => {
       setErrors({ ...errors, password2: "Passwords do not match" });
       return;
     }
+    // TODO: handle Register
     dispatch(authActions.register(name, email, password));
   };
   if (isAuthenticated) return <Redirect to="/" />;
-  if (redirectTo) return <Redirect to={redirectTo} />;
 
-  // // TODO: remove fake data
-  // const fillFakeData = () => {
-  //   setFormData({
-  //     name: "Minh",
-  //     email: "minh@cs.vn",
-  //     password: "123",
-  //     password2: "123",
-  //   });
-  // };
+  const fillFakeData = () => {
+    setFormData({
+      name: "Minh",
+      email: "minh@cs.vn",
+      password: "123",
+      password2: "123",
+    });
+  };
+
   return (
     <Container>
       <Row>
@@ -125,14 +124,14 @@ const RegisterPage = () => {
             )}
 
             {/* TODO: remove fake data */}
-            {/* <Button
+            <Button
               className="btn-block"
               type="button"
               variant="light"
               onClick={fillFakeData}
             >
               Fill in fake data
-            </Button> */}
+            </Button>
 
             <p>
               Already have an account? <Link to="/login">Sign In</Link>

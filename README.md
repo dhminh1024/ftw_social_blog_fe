@@ -395,7 +395,7 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
     dispatch({ type: types.BLOG_REQUEST, payload: null });
     try {
       const res = await api.get("/blogs");
-      dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data });
+      dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data.data });
     } catch (error) {
       dispatch({ type: types.BLOG_REQUEST_FAILURE, payload: error });
     }

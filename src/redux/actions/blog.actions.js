@@ -6,7 +6,10 @@ const blogsRequest = () => async (dispatch) => {
   dispatch({ type: types.BLOG_REQUEST, payload: null });
   try {
     const res = await api.get("/blogs");
-    dispatch({ type: types.BLOG_REQUEST_SUCCESS, payload: res.data.data });
+    dispatch({
+      type: types.BLOG_REQUEST_SUCCESS,
+      payload: res.data.data.blogs,
+    });
   } catch (error) {
     dispatch({ type: types.BLOG_REQUEST_FAILURE, payload: error });
   }
@@ -28,7 +31,7 @@ const getSingleBlog = (blogId) => async (dispatch) => {
 const createReview = (blogId, reviewText) => async (dispatch) => {
   dispatch({ type: types.CREATE_REVIEW_REQUEST, payload: null });
   try {
-    const res = await api.post(`/blogs/${blogId}/reviews`, {
+    const res = await api.post(`/reviews/blogs/${blogId}`, {
       content: reviewText,
     });
     dispatch({

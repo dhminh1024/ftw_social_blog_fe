@@ -426,7 +426,7 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
 
 #### The layout wrapper
 
-- Create `src/layouts/PublicLayout.js`, cut the public routes from `src/Routes/index.js` and paste them here:
+- Create `src/containers/layouts/PublicLayout.js`, cut the public routes from `src/Routes/index.js` and paste them here:
   ```javascript
   const PublicLayout = () => {
     return (
@@ -457,7 +457,7 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
 
 #### The NotFoundPage
 
-- Create `src/layouts/NotFoundPage.js`
+- Create `src/containers/layouts/NotFoundPage.js`
   ```javascript
   const NotFoundPage = () => {
     return (
@@ -551,6 +551,7 @@ Time to add the logic. Let's connect to the server and get the list of blogs.
   - In `src/index.js`:
   ```javascript
   import store from "./redux/store";
+  import { Provider } from "react-redux";
   ...
   ReactDOM.render(
     <Provider store={store}>

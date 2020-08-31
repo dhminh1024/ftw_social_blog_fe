@@ -17,7 +17,8 @@ const BlogCard = ({ blog, handleClick }) => {
       <Card.Footer>
         <small className="text-muted">
           <span className="text-muted">
-            @{blog?.user?.name} wrote <Moment fromNow>{blog.createdAt}</Moment>
+            @{blog?.author?.name} wrote{" "}
+            <Moment fromNow>{blog.createdAt}</Moment>
           </span>
         </small>
       </Card.Footer>

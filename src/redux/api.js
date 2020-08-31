@@ -3,7 +3,8 @@ import store from "./store";
 import { alertActions } from "./actions";
 
 const api = axios.create({
-  baseURL: "https://social-api-cs.great.dev/",
+  // baseURL: "https://social-api-cs.great.dev/",
+  baseURL: "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },

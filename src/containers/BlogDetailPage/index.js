@@ -53,13 +53,13 @@ const BlogDetailPage = () => {
           {blog && (
             <div className="mb-5">
               <h1>{blog.title}</h1>
-              {currentUser?._id === blog?.user?._id ? (
+              {currentUser?._id === blog?.author?._id ? (
                 <Link to={`/blog/edit/${blog._id}`}>
                   <Button variant="primary">Edit</Button>
                 </Link>
               ) : (
                 <span className="text-muted">
-                  @{blog?.user?.name} wrote{" "}
+                  @{blog?.author?.name} wrote{" "}
                   <Moment fromNow>{blog.createdAt}</Moment>
                 </span>
               )}

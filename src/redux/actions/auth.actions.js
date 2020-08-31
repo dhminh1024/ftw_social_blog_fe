@@ -6,11 +6,12 @@ const loginRequest = (email, password) => async (dispatch) => {
   dispatch({ type: types.LOGIN_REQUEST, payload: null });
   try {
     const res = await api.post("/auth/login", { email, password });
-    const name = res.data.data.name;
+    const name = res.data.data.user.name;
     dispatch(alertActions.setAlert(`Welcome back, ${name}`, "success"));
-    dispatch({ type: types.LOGIN_SUCCESS, payload: res.data });
+    dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
+    console.log(res.data.data.accessToken, "................................");
     api.defaults.headers.common["authorization"] =
-      "Bearer " + res.data.accessToken;
+      "Bearer " + res.data.data.accessToken;
   } catch (error) {
     dispatch({ type: types.LOGIN_FAILURE, payload: error });
   }

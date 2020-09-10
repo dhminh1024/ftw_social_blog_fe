@@ -1275,12 +1275,12 @@ In this step, we will add a form to submit review in the Blog Detail Page. The r
 - In `blog.reducer.js`:
   ```javascript
   case types.CREATE_REVIEW_REQUEST:
-    return { ...state, submitReviewLoading: true };
+    return { ...state, submitLoading: true };
 
   case types.CREATE_REVIEW_SUCCESS:
     return {
       ...state,
-      submitReviewLoading: false,
+      submitLoading: false,
       selectedBlog: {
         ...state.selectedBlog,
         reviews: [...state.selectedBlog.reviews, payload],
@@ -1288,7 +1288,7 @@ In this step, we will add a form to submit review in the Blog Detail Page. The r
     };
 
   case types.CREATE_REVIEW_FAILURE:
-    return { ...state, submitReviewLoading: false };
+    return { ...state, submitLoading: false };
   ```
 
 Now let create the form in the Blog Detail Page and handle the submit event by dispatching the `createReview()` action. 
@@ -1296,8 +1296,8 @@ Now let create the form in the Blog Detail Page and handle the submit event by d
   ```javascript
   const BlogDetailPage = () => {
     ...
-    const submitReviewLoading = useSelector(
-      (state) => state.blog.submitReviewLoading
+    const submitLoading = useSelector(
+      (state) => state.blog.submitLoading
     );
     const [reviewText, setReviewText] = useState("");
 
@@ -1322,7 +1322,7 @@ Now let create the form in the Blog Detail Page and handle the submit event by d
           reviewText={reviewText}
           handleInputChange={handleInputChange}
           handleSubmitReview={handleSubmitReview}
-          loading={submitReviewLoading}
+          loading={submitLoading}
         />
       )}
     );
@@ -1506,12 +1506,12 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
       return { ...state, loading: false, selectedBlog: {}, redirectTo: "/" };
 
     case types.CREATE_REVIEW_REQUEST:
-      return { ...state, submitReviewLoading: true };
+      return { ...state, submitLoading: true };
 
     case types.CREATE_REVIEW_SUCCESS:
       return {
         ...state,
-        submitReviewLoading: false,
+        submitLoading: false,
         selectedBlog: {
           ...state.selectedBlog,
           reviews: [...state.selectedBlog.reviews, payload],
@@ -1519,7 +1519,7 @@ In this step, we will implement Create, Edit, and Delete Blog features for authe
       };
 
     case types.CREATE_REVIEW_FAILURE:
-      return { ...state, submitReviewLoading: false };
+      return { ...state, submitLoading: false };
     case types.SET_REDIRECT_TO:
       return { ...state, redirectTo: payload };
     default:

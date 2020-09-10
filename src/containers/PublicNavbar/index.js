@@ -15,8 +15,8 @@ const PublicNavbar = () => {
   };
   const authLinks = (
     <Nav>
-      <Nav.Link as={Link} to="/dashboard">
-        <i className="fas fa-chart-line" /> Dashboard
+      <Nav.Link as={Link} to="/admin/profile">
+        <i className="fas fa-chart-line" /> Admin
       </Nav.Link>
       <Nav.Link onClick={handleLogout}>
         <i className="fas fa-sign-out-alt" /> Logout
@@ -37,7 +37,7 @@ const PublicNavbar = () => {
   return (
     <Navbar bg="light" expand="lg">
       <Navbar.Brand as={Link} to="/" className="mr-auto">
-        <img src={logo} alt="CoderSchool" />
+        <img src={logo} alt="CoderSchool" width="200px" />
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">

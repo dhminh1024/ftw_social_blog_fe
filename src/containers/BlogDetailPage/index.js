@@ -8,6 +8,8 @@ import Moment from "react-moment";
 import Markdown from "react-markdown";
 import ReviewList from "../../components/ReviewList";
 import ReviewBlog from "../../components/ReviewBlog";
+import Reactions from "../../components/Reactions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const BlogDetailPage = () => {
   const params = useParams();
@@ -15,9 +17,7 @@ const BlogDetailPage = () => {
   const blog = useSelector((state) => state.blog.selectedBlog);
   const loading = useSelector((state) => state.blog.loading);
   const currentUser = useSelector((state) => state.auth.user);
-  const submitReviewLoading = useSelector(
-    (state) => state.blog.subReviewLoading
-  );
+  const submitLoading = useSelector((state) => state.blog.subReviewLoading);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const history = useHistory();
 
@@ -43,8 +43,19 @@ const BlogDetailPage = () => {
 
   return (
     <>
-      <div>
-        <Button onClick={handleGoBackClick}>Back</Button>
+      <div className="d-flex justify-content-between">
+        <Button onClick={handleGoBackClick}>
+          <FontAwesomeIcon icon="chevron-left" size="1x" /> Back
+        </Button>
+        {currentUser?._id === blog?.author?._id ? (
+          <Link to={`/blog/edit/${blog._id}`}>
+            <Button variant="primary">
+              <FontAwesomeIcon icon="edit" size="1x" /> Edit
+            </Button>
+          </Link>
+        ) : (
+          <></>
+        )}
       </div>
       {loading ? (
         <ClipLoader color="#f86c6b" size={150} loading={loading} />
@@ -52,19 +63,22 @@ const BlogDetailPage = () => {
         <>
           {blog && (
             <div className="mb-5">
-              <h1>{blog.title}</h1>
-              {currentUser?._id === blog?.author?._id ? (
-                <Link to={`/blog/edit/${blog._id}`}>
-                  <Button variant="primary">Edit</Button>
-                </Link>
-              ) : (
-                <span className="text-muted">
-                  @{blog?.author?.name} wrote{" "}
-                  <Moment fromNow>{blog.createdAt}</Moment>
-                </span>
-              )}
+              <h4>{blog.title}</h4>
+
+              <span className="text-muted">
+                @{blog?.author?.name} wrote{" "}
+                <Moment fromNow>{blog.createdAt}</Moment>
+              </span>
+
               <hr />
               <Markdown source={blog.content} />
+              <hr />
+              <Reactions
+                reactionsData={blog.reactions}
+                targetType="Blog"
+                target={blog._id}
+                size="lg"
+              />
               <hr />
               <ReviewList reviews={blog.reviews} />
             </div>
@@ -75,7 +89,7 @@ const BlogDetailPage = () => {
               reviewText={reviewText}
               handleInputChange={handleInputChange}
               handleSubmitReview={handleSubmitReview}
-              loading={submitReviewLoading}
+              loading={submitLoading}
             />
           )}
         </>

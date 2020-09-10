@@ -2,6 +2,7 @@ import * as types from "../constants/blog.constants";
 
 const initialState = {
   blogs: [],
+  totalPageNum: 1,
   selectedBlog: {},
   loading: false,
 };
@@ -17,7 +18,12 @@ const blogReducer = (state = initialState, action) => {
       return { ...state, loading: true };
 
     case types.BLOG_REQUEST_SUCCESS:
-      return { ...state, blogs: payload, loading: false };
+      return {
+        ...state,
+        blogs: payload.blogs,
+        totalPageNum: payload.totalPages,
+        loading: false,
+      };
 
     case types.GET_SINGLE_BLOG_REQUEST_SUCCESS:
       return { ...state, selectedBlog: payload, loading: false };
@@ -38,26 +44,55 @@ const blogReducer = (state = initialState, action) => {
       return { ...state, loading: false };
 
     case types.CREATE_BLOG_SUCCESS:
-      return { ...state, loading: false, redirectTo: "/" };
+      return { ...state, loading: false, redirectTo: "__GO_BACK__" };
 
     case types.DELETE_BLOG_SUCCESS:
-      return { ...state, loading: false, selectedBlog: {}, redirectTo: "/" };
+      return {
+        ...state,
+        loading: false,
+        selectedBlog: {},
+        redirectTo: "__GO_BACK__",
+      };
 
+    case types.SEND_REACTION_REQUEST:
     case types.CREATE_REVIEW_REQUEST:
-      return { ...state, submitReviewLoading: true };
+      return { ...state, submitLoading: true };
 
     case types.CREATE_REVIEW_SUCCESS:
       return {
         ...state,
-        submitReviewLoading: false,
+        submitLoading: false,
         selectedBlog: {
           ...state.selectedBlog,
           reviews: [...state.selectedBlog.reviews, payload],
         },
       };
 
+    case types.BLOG_REACTION_SUCCESS:
+      return {
+        ...state,
+        selectedBlog: { ...state.selectedBlog, reactions: payload },
+        submitLoading: false,
+      };
+
+    case types.REVIEW_REACTION_SUCCESS:
+      return {
+        ...state,
+        selectedBlog: {
+          ...state.selectedBlog,
+          reviews: [
+            ...state.selectedBlog.reviews.map((review) => {
+              if (review._id !== payload.reviewId) return review;
+              return { ...review, reactions: payload.reactions };
+            }),
+          ],
+        },
+        submitLoading: false,
+      };
+
+    case types.SEND_REACTION_FAILURE:
     case types.CREATE_REVIEW_FAILURE:
-      return { ...state, submitReviewLoading: false };
+      return { ...state, submitLoading: false };
     case types.SET_REDIRECT_TO:
       return { ...state, redirectTo: payload };
     default:

@@ -10,6 +10,7 @@ const RegisterPage = () => {
     email: "",
     password: "",
     password2: "",
+    avatarUrl: "",
   });
   const [errors, setErrors] = useState({
     name: "",
@@ -26,23 +27,43 @@ const RegisterPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { name, email, password, password2 } = formData;
+    const { name, email, password, password2, avatarUrl } = formData;
     if (password !== password2) {
       setErrors({ ...errors, password2: "Passwords do not match" });
       return;
     }
     // TODO: handle Register
-    dispatch(authActions.register(name, email, password));
+    dispatch(authActions.register(name, email, password, avatarUrl));
   };
   if (isAuthenticated) return <Redirect to="/" />;
 
   const fillFakeData = () => {
-    setFormData({
+    setFormData((formData) => ({
+      ...formData,
       name: "Minh",
-      email: "minh@cs.vn",
+      email: "minhdh@cs.vn",
       password: "123",
       password2: "123",
-    });
+    }));
+  };
+
+  const uploadWidget = () => {
+    window.cloudinary.openUploadWidget(
+      {
+        cloud_name: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
+        upload_preset: process.env.REACT_APP_CLOUDINARY_PRESET,
+        tags: ["socialBlog", "userAvatar"],
+      },
+      function (error, result) {
+        if (error) console.log(error);
+        if (result && result.length && !error) {
+          setFormData({
+            ...formData,
+            avatarUrl: result[0].secure_url,
+          });
+        }
+      }
+    );
   };
 
   return (
@@ -56,6 +77,26 @@ const RegisterPage = () => {
             </p>
           </div>
           <Form onSubmit={handleSubmit}>
+            <Form.Group>
+              <div className="text-center">
+                {formData.avatarUrl && (
+                  <div className="mb-3">
+                    <img
+                      src={formData.avatarUrl}
+                      className="avatar-lg"
+                      alt="avatar"
+                    />
+                  </div>
+                )}
+                <Button
+                  variant="info"
+                  // className="btn-block w-50 "
+                  onClick={uploadWidget}
+                >
+                  Add avatar
+                </Button>
+              </div>
+            </Form.Group>
             <Form.Group>
               <Form.Control
                 type="text"
@@ -103,6 +144,7 @@ const RegisterPage = () => {
                 onChange={handleChange}
               />
             </Form.Group>
+
             {loading ? (
               <Button
                 className="btn-block"

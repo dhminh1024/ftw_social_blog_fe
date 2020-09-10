@@ -24,16 +24,21 @@ const AddEditBlogPage = () => {
   const selectedBlog = useSelector((state) => state.blog.selectedBlog);
   const redirectTo = useSelector((state) => state.blog.redirectTo);
   const addOrEdit = params.id ? "Edit" : "Add";
+  const blogId = params.id;
 
   useEffect(() => {
-    if (addOrEdit === "Edit") {
+    if (blogId) {
+      if (!selectedBlog) {
+        dispatch(blogActions.getSingleBlog(blogId));
+      }
       setFormData((formData) => ({
         ...formData,
         title: selectedBlog.title,
         content: selectedBlog.content,
+        images: selectedBlog.images,
       }));
     }
-  }, [addOrEdit, selectedBlog]);
+  }, [blogId, selectedBlog, dispatch]);
 
   const handleChange = (e) => {
     if (e.target.name === "images") {
@@ -75,6 +80,24 @@ const AddEditBlogPage = () => {
     }
   }, [redirectTo, dispatch, history]);
 
+  const uploadWidget = () => {
+    window.cloudinary.openUploadWidget(
+      {
+        cloud_name: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
+        upload_preset: process.env.REACT_APP_CLOUDINARY_PRESET,
+        tags: ["socialBlog", "blogImages"],
+      },
+      function (error, result) {
+        if (result && result.length) {
+          setFormData({
+            ...formData,
+            images: result.map((res) => res.secure_url),
+          });
+        }
+      }
+    );
+  };
+
   return (
     <Container>
       <Row>
@@ -106,7 +129,7 @@ const AddEditBlogPage = () => {
                 onChange={handleChange}
               />
             </Form.Group>
-            <Form.Group>
+            {/* <Form.Group>
               <Form.Control
                 type="file"
                 name="images"
@@ -114,6 +137,20 @@ const AddEditBlogPage = () => {
                 accept="image/png image/jpeg image/jpg"
                 onChange={handleChange}
               />
+            </Form.Group> */}
+            <Form.Group>
+              {formData?.images?.map((image) => (
+                <img
+                  src={image}
+                  key={image}
+                  width="90px"
+                  height="60px"
+                  alt="blog images"
+                ></img>
+              ))}
+              <Button variant="info" onClick={uploadWidget}>
+                {addOrEdit} Images
+              </Button>
             </Form.Group>
             <ButtonGroup className="d-flex mb-3">
               {loading ? (

@@ -1,4 +1,6 @@
 import React from "react";
+import Moment from "react-moment";
+import Reactions from "./Reactions";
 
 const ReviewList = ({ reviews }) => {
   return (
@@ -16,9 +18,21 @@ const ReviewList = ({ reviews }) => {
 
 const ReviewContent = ({ review }) => {
   return (
-    <div>
-      <span className="text-muted">@{review?.user?.name}: </span>
-      <span> {review.content} </span>
+    <div className="comment">
+      <span className="comment_body">{review?.content}</span>
+      <br />
+      <span className="comment_by">posted by </span>
+      <span className="comment_author">{review?.user?.name}</span>
+      <span className="comment_on"> on </span>
+      <span className="comment_date">
+        <Moment fromNow>{review?.createdAt}</Moment>
+      </span>
+      <Reactions
+        reactionsData={review?.reactions}
+        targetType="Review"
+        target={review?._id}
+        size="sm"
+      />
     </div>
   );
 };

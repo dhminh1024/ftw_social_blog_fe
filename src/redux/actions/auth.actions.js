@@ -9,7 +9,6 @@ const loginRequest = (email, password) => async (dispatch) => {
     const name = res.data.data.user.name;
     dispatch(alertActions.setAlert(`Welcome back, ${name}`, "success"));
     dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
-    console.log(res.data.data.accessToken, "................................");
     api.defaults.headers.common["authorization"] =
       "Bearer " + res.data.data.accessToken;
   } catch (error) {
@@ -17,13 +16,26 @@ const loginRequest = (email, password) => async (dispatch) => {
   }
 };
 
-const register = (name, email, password) => async (dispatch) => {
+const register = (name, email, password, avatarUrl) => async (dispatch) => {
   dispatch({ type: types.REGISTER_REQUEST, payload: null });
   try {
-    const res = await api.post("/users", { name, email, password });
+    const res = await api.post("/users", { name, email, password, avatarUrl });
     dispatch({ type: types.REGISTER_SUCCESS, payload: res.data.data });
+    dispatch(alertActions.setAlert(`Welcome, ${name}`, "success"));
+    api.defaults.headers.common["authorization"] =
+      "Bearer " + res.data.data.accessToken;
   } catch (error) {
     dispatch({ type: types.REGISTER_FAILURE, payload: error });
+  }
+};
+
+const updateProfile = (name, avatarUrl) => async (dispatch) => {
+  dispatch({ type: types.UPDATE_PROFILE_REQUEST, payload: null });
+  try {
+    const res = await api.put("/users", { name, avatarUrl });
+    dispatch({ type: types.UPDATE_PROFILE_SUCCESS, payload: res.data.data });
+  } catch (error) {
+    dispatch({ type: types.UPDATE_PROFILE_FAILURE, payload: error });
   }
 };
 
@@ -50,6 +62,7 @@ const logout = () => (dispatch) => {
 export const authActions = {
   loginRequest,
   register,
+  updateProfile,
   getCurrentUser,
   logout,
 };

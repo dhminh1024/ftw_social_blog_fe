@@ -3,10 +3,10 @@ import store from "./store";
 import { alertActions } from "./actions";
 
 const api = axios.create({
-  // baseURL: "https://social-api-cs.great.dev/",
   baseURL: process.env.REACT_APP_BACKEND_API + "api",
   headers: {
     "Content-Type": "application/json",
+    // authorization: "Bearer "+ localStorage.getItem("accessToken")
   },
 });
 /**

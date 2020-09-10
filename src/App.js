@@ -21,8 +21,15 @@ import { faCheckSquare } from "@fortawesome/free-solid-svg-icons/faCheckSquare";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons/faTimesCircle";
 import { faPauseCircle } from "@fortawesome/free-solid-svg-icons/faPauseCircle";
 import { faCircle } from "@fortawesome/free-solid-svg-icons/faCircle";
+import { faUser } from "@fortawesome/free-solid-svg-icons/faUser";
+import { faRegistered } from "@fortawesome/free-solid-svg-icons/faRegistered";
+import { faChartLine } from "@fortawesome/free-solid-svg-icons/faChartLine";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons/faSignOutAlt";
+import { faSignInAlt } from "@fortawesome/free-solid-svg-icons/faSignInAlt";
+import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(
+  fab,
   faAngry,
   faLaugh,
   faSadCry,
@@ -36,7 +43,12 @@ library.add(
   faCheckSquare,
   faTimesCircle,
   faPauseCircle,
-  faCircle
+  faCircle,
+  faUser,
+  faRegistered,
+  faChartLine,
+  faSignOutAlt,
+  faSignInAlt
 );
 
 function App() {

@@ -10,12 +10,17 @@ const authReducer = (state = initialState, action) => {
 
   switch (type) {
     case types.LOGIN_REQUEST:
+    case types.LOGIN_FACEBOOK_REQUEST:
+    case types.LOGIN_GOOGLE_REQUEST:
     case types.REGISTER_REQUEST:
     case types.GET_CURRENT_USER_REQUEST:
     case types.UPDATE_PROFILE_REQUEST:
       return { ...state, loading: true };
+
     case types.REGISTER_SUCCESS:
     case types.LOGIN_SUCCESS:
+    case types.LOGIN_FACEBOOK_SUCCESS:
+    case types.LOGIN_GOOGLE_SUCCESS:
       localStorage.setItem("accessToken", payload.accessToken);
       return {
         ...state,
@@ -26,6 +31,8 @@ const authReducer = (state = initialState, action) => {
       };
 
     case types.LOGIN_FAILURE:
+    case types.LOGIN_FACEBOOK_FAILURE:
+    case types.LOGIN_GOOGLE_FAILURE:
     case types.GET_CURRENT_USER_FAILURE:
       return { ...state, loading: false, isAuthenticated: false };
 

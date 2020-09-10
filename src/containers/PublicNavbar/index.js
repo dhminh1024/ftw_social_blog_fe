@@ -5,6 +5,7 @@ import logo from "../../images/logo.svg";
 import { useSelector } from "react-redux";
 import { authActions } from "../../redux/actions";
 import { useDispatch } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const PublicNavbar = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -16,20 +17,20 @@ const PublicNavbar = () => {
   const authLinks = (
     <Nav>
       <Nav.Link as={Link} to="/admin/profile">
-        <i className="fas fa-chart-line" /> Admin
+        <FontAwesomeIcon icon="chart-line" size="sm" /> Admin
       </Nav.Link>
       <Nav.Link onClick={handleLogout}>
-        <i className="fas fa-sign-out-alt" /> Logout
+        <FontAwesomeIcon icon="sign-out-alt" size="sm" /> Logout
       </Nav.Link>
     </Nav>
   );
   const publicLinks = (
     <Nav>
       <Nav.Link as={Link} to="/register">
-        <i className="fas fa-registered" /> Register
+        <FontAwesomeIcon icon="registered" size="sm" /> Register
       </Nav.Link>
       <Nav.Link as={Link} to="/login">
-        <i className="fas fa-sign-in-alt" /> Login
+        <FontAwesomeIcon icon="sign-in-alt" size="sm" /> Login
       </Nav.Link>
     </Nav>
   );

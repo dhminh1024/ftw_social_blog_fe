@@ -30,7 +30,7 @@ api.interceptors.response.use(
   function (error) {
     error = error.response.data;
     console.log("RESPONSE ERROR", error);
-    let errorMsg = error.message;
+    let errorMsg = error.message || error;
     if (error.errors && error.errors.message)
       errorMsg = errorMsg + ": " + error.errors.message;
     store.dispatch(alertActions.setAlert(errorMsg, "danger"));

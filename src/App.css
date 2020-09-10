@@ -111,3 +111,11 @@
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
+
+.google-btn {
+  box-shadow: none !important;
+  border-left: none !important;
+  border: 1px solid gainsboro !important;
+  opacity: 1 !important;
+  font-size: 16px !important;
+}

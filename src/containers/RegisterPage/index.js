@@ -37,16 +37,6 @@ const RegisterPage = () => {
   };
   if (isAuthenticated) return <Redirect to="/" />;
 
-  const fillFakeData = () => {
-    setFormData((formData) => ({
-      ...formData,
-      name: "Minh",
-      email: "minhdh@cs.vn",
-      password: "123",
-      password2: "123",
-    }));
-  };
-
   const uploadWidget = () => {
     window.cloudinary.openUploadWidget(
       {
@@ -164,16 +154,6 @@ const RegisterPage = () => {
                 Register
               </Button>
             )}
-
-            {/* TODO: remove fake data */}
-            <Button
-              className="btn-block"
-              type="button"
-              variant="light"
-              onClick={fillFakeData}
-            >
-              Fill in fake data
-            </Button>
 
             <p>
               Already have an account? <Link to="/login">Sign In</Link>

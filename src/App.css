@@ -56,7 +56,6 @@
 }
 
 .sidebar-sticky {
-  position: relative;
   top: 0;
   height: calc(100vh - 48px);
   padding-top: .5rem;
@@ -107,7 +106,6 @@
 }
 
 .conversation-list {
-  position: relative;
   top: 0;
   height: calc(100vh - 150px);
   padding-top: .5rem;

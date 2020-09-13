@@ -82,6 +82,9 @@ const updateProfile = (name, avatarUrl) => async (dispatch) => {
   try {
     const res = await api.put("/users", { name, avatarUrl });
     dispatch({ type: types.UPDATE_PROFILE_SUCCESS, payload: res.data.data });
+    dispatch(
+      alertActions.setAlert(`Your profile has been updated.`, "success")
+    );
   } catch (error) {
     dispatch({ type: types.UPDATE_PROFILE_FAILURE, payload: error });
   }

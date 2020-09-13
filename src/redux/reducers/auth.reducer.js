@@ -15,12 +15,16 @@ const authReducer = (state = initialState, action) => {
     case types.REGISTER_REQUEST:
     case types.GET_CURRENT_USER_REQUEST:
     case types.UPDATE_PROFILE_REQUEST:
+    case types.VERIFY_EMAIL_REQUEST:
       return { ...state, loading: true };
 
     case types.REGISTER_SUCCESS:
+      return { ...state, loading: false, redirectTo: "/verify/_" };
+
     case types.LOGIN_SUCCESS:
     case types.LOGIN_FACEBOOK_SUCCESS:
     case types.LOGIN_GOOGLE_SUCCESS:
+    case types.VERIFY_EMAIL_SUCCESS:
       localStorage.setItem("accessToken", payload.accessToken);
       return {
         ...state,
@@ -33,6 +37,7 @@ const authReducer = (state = initialState, action) => {
     case types.LOGIN_FAILURE:
     case types.LOGIN_FACEBOOK_FAILURE:
     case types.LOGIN_GOOGLE_FAILURE:
+    case types.VERIFY_EMAIL_FAILURE:
     case types.GET_CURRENT_USER_FAILURE:
       return { ...state, loading: false, isAuthenticated: false };
 
@@ -59,6 +64,8 @@ const authReducer = (state = initialState, action) => {
         user: null,
         loading: false,
       };
+    case types.SET_REDIRECT_TO:
+      return { ...state, redirectTo: payload };
     default:
       return state;
   }

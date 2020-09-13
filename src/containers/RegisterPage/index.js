@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Link, Redirect } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../redux/actions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -20,8 +21,9 @@ const RegisterPage = () => {
   });
 
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const loading = useSelector((state) => state.auth.loading);
+  const redirectTo = useSelector((state) => state.auth.redirectTo);
+  const history = useHistory();
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,7 +37,6 @@ const RegisterPage = () => {
     // TODO: handle Register
     dispatch(authActions.register(name, email, password, avatarUrl));
   };
-  if (isAuthenticated) return <Redirect to="/" />;
 
   const uploadWidget = () => {
     window.cloudinary.openUploadWidget(
@@ -56,6 +57,18 @@ const RegisterPage = () => {
     );
   };
 
+  useEffect(() => {
+    if (redirectTo) {
+      if (redirectTo === "__GO_BACK__") {
+        history.goBack();
+        dispatch(authActions.setRedirectTo(""));
+      } else {
+        history.push(redirectTo);
+        dispatch(authActions.setRedirectTo(""));
+      }
+    }
+  }, [dispatch, history, redirectTo]);
+
   return (
     <Container>
       <Row>
@@ -63,7 +76,7 @@ const RegisterPage = () => {
           <div className="text-center mb-3">
             <h1 className="text-primary">Sign Up</h1>
             <p className="lead">
-              <i className="fas fa-user" /> Create Your Account
+              <FontAwesomeIcon icon="user" size="1x" /> Create Your Account
             </p>
           </div>
           <Form onSubmit={handleSubmit}>

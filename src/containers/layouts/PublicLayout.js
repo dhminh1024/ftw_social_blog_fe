@@ -10,6 +10,7 @@ import AlertMsg from "./AlertMsg";
 import BlogDetailPage from "../BlogDetailPage";
 import AddEditBlogPage from "../AddEditBlogPage";
 import PrivateRoute from "../Routes/PrivateRoute";
+import VerifyEmailPage from "../VerifyEmailPage";
 
 const PublicLayout = () => {
   return (
@@ -22,6 +23,7 @@ const PublicLayout = () => {
           <Route exact path="/login" component={LoginPage} />
           <Route exact path="/register" component={RegisterPage} />
           <Route exact path="/blogs/:id" component={BlogDetailPage} />
+          <Route exact path="/verify/:code" component={VerifyEmailPage} />
           <PrivateRoute exact path="/blog/add" component={AddEditBlogPage} />
           <PrivateRoute
             exact

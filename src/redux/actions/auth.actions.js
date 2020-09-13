@@ -49,11 +49,31 @@ const register = (name, email, password, avatarUrl) => async (dispatch) => {
   try {
     const res = await api.post("/users", { name, email, password, avatarUrl });
     dispatch({ type: types.REGISTER_SUCCESS, payload: res.data.data });
-    dispatch(alertActions.setAlert(`Welcome, ${name}`, "success"));
+    // const name = res.data.data.user.name;
+    // dispatch(alertActions.setAlert(`Welcome, ${name}`, "success"));
+    // api.defaults.headers.common["authorization"] =
+    //   "Bearer " + res.data.data.accessToken;
+  } catch (error) {
+    dispatch({ type: types.REGISTER_FAILURE, payload: error });
+  }
+};
+
+const verifyEmail = (code) => async (dispatch) => {
+  dispatch({ type: types.VERIFY_EMAIL_REQUEST, payload: null });
+  try {
+    const res = await api.post("/users/verify_email", { code });
+    dispatch({ type: types.VERIFY_EMAIL_SUCCESS, payload: res.data.data });
+    const name = res.data.data.user.name;
+    dispatch(
+      alertActions.setAlert(
+        `Welcome, ${name}! Your email address has been verified.`,
+        "success"
+      )
+    );
     api.defaults.headers.common["authorization"] =
       "Bearer " + res.data.data.accessToken;
   } catch (error) {
-    dispatch({ type: types.REGISTER_FAILURE, payload: error });
+    dispatch({ type: types.VERIFY_EMAIL_FAILURE, payload: error });
   }
 };
 
@@ -87,12 +107,19 @@ const logout = () => (dispatch) => {
   dispatch({ type: types.LOGOUT, payload: null });
 };
 
+const setRedirectTo = (redirectTo) => ({
+  type: types.SET_REDIRECT_TO,
+  payload: redirectTo,
+});
+
 export const authActions = {
   loginRequest,
   loginFacebookRequest,
   loginGoogleRequest,
   register,
+  verifyEmail,
   updateProfile,
   getCurrentUser,
   logout,
+  setRedirectTo,
 };

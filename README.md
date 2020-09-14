@@ -12,7 +12,7 @@ This week we'll learn to create a social blog application using React, Redux, Re
 You will be provided a backend API server with Node.js, Express, and MongoDB, which you will learn soon. So let's focus on the front-end side for now. This application is a perfect example of how your final project should look like.
 
 **IMPORTANT**
-* [Demo App](https://ftw-w6-demo.netlify.app/)
+* [Demo App](https://social-blog-cs.netlify.app/)
 * [API Documentation](https://documenter.getpostman.com/view/7621298/T1Dv8F6p?version=latest#a071427d-c177-49b5-b7be-50c3456b9aac)
 
 ## Vocab

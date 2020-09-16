@@ -3,7 +3,7 @@ import * as types from "../constants/blog.constants";
 const initialState = {
   blogs: [],
   totalPageNum: 1,
-  selectedBlog: {},
+  selectedBlog: null,
   loading: false,
 };
 

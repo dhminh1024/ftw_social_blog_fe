@@ -1,14 +1,17 @@
 import * as types from "../constants/auth.constants";
 import api from "../api";
 import { alertActions } from "./alert.actions";
+import { routeActions } from "./route.actions";
+import { toast } from "react-toastify";
 
 const loginRequest = (email, password) => async (dispatch) => {
   dispatch({ type: types.LOGIN_REQUEST, payload: null });
   try {
     const res = await api.post("/auth/login", { email, password });
     const name = res.data.data.user.name;
-    dispatch(alertActions.setAlert(`Welcome ${name}`, "success"));
+    // dispatch(alertActions.setAlert(`Welcome ${name}`, "success"));
     dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
+    toast.success(`Welcome ${name}`);
     api.defaults.headers.common["authorization"] =
       "Bearer " + res.data.data.accessToken;
   } catch (error) {
@@ -49,6 +52,9 @@ const register = (name, email, password, avatarUrl) => async (dispatch) => {
   try {
     const res = await api.post("/users", { name, email, password, avatarUrl });
     dispatch({ type: types.REGISTER_SUCCESS, payload: res.data.data });
+    dispatch(routeActions.redirect("/login"));
+    toast.success(`Thank you for your registration, ${name}!`);
+    // dispatch(routeActions.redirect("/verify/_"));
     // const name = res.data.data.user.name;
     // dispatch(alertActions.setAlert(`Welcome, ${name}`, "success"));
     // api.defaults.headers.common["authorization"] =
@@ -110,11 +116,6 @@ const logout = () => (dispatch) => {
   dispatch({ type: types.LOGOUT, payload: null });
 };
 
-const setRedirectTo = (redirectTo) => ({
-  type: types.SET_REDIRECT_TO,
-  payload: redirectTo,
-});
-
 export const authActions = {
   loginRequest,
   loginFacebookRequest,
@@ -124,5 +125,4 @@ export const authActions = {
   updateProfile,
   getCurrentUser,
   logout,
-  setRedirectTo,
 };

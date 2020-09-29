@@ -10,19 +10,20 @@ import {
 } from "react-bootstrap";
 import { useHistory, useParams } from "react-router-dom";
 import { blogActions } from "../../redux/actions";
+import { routeActions } from "../../redux/actions/route.actions";
 
 const AddEditBlogPage = () => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    images: null,
+    images: [],
   });
   const loading = useSelector((state) => state.blog.loading);
   const dispatch = useDispatch();
   const history = useHistory();
   const params = useParams();
   const selectedBlog = useSelector((state) => state.blog.selectedBlog);
-  const redirectTo = useSelector((state) => state.blog.redirectTo);
+  const redirectTo = useSelector((state) => state.route.redirectTo);
   const addOrEdit = params.id ? "Edit" : "Add";
   const blogId = params.id;
 
@@ -55,7 +56,9 @@ const AddEditBlogPage = () => {
     if (addOrEdit === "Add") {
       dispatch(blogActions.createNewBlog(title, content, images));
     } else if (addOrEdit === "Edit") {
-      dispatch(blogActions.updateBlog(selectedBlog._id, title, content));
+      dispatch(
+        blogActions.updateBlog(selectedBlog._id, title, content, images)
+      );
     }
   };
 
@@ -72,10 +75,10 @@ const AddEditBlogPage = () => {
     if (redirectTo) {
       if (redirectTo === "__GO_BACK__") {
         history.goBack();
-        dispatch(blogActions.setRedirectTo(""));
+        dispatch(routeActions.removeRedirectTo());
       } else {
         history.push(redirectTo);
-        dispatch(blogActions.setRedirectTo(""));
+        dispatch(routeActions.removeRedirectTo());
       }
     }
   }, [redirectTo, dispatch, history]);
@@ -139,15 +142,17 @@ const AddEditBlogPage = () => {
               />
             </Form.Group> */}
             <Form.Group>
-              {formData?.images?.map((image) => (
-                <img
-                  src={image}
-                  key={image}
-                  width="90px"
-                  height="60px"
-                  alt="blog images"
-                ></img>
-              ))}
+              {formData.images &&
+                formData.images.length > 0 &&
+                formData.images.map((image) => (
+                  <img
+                    src={image}
+                    key={image}
+                    width="90px"
+                    height="60px"
+                    alt="blog images"
+                  ></img>
+                ))}
               <Button variant="info" onClick={uploadWidget}>
                 {addOrEdit} Images
               </Button>

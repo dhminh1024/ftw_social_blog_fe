@@ -39,7 +39,7 @@ You will be provided a backend API server with Node.js, Express, and MongoDB, wh
   npm i react-router-dom
   npm i bootstrap react-bootstrap
   npm i react-markdown react-spinners moment react-moment
-  npm i axios uuid
+  npm i axios uuid react-toastify
   ```
 
   - Delete `/src/logo.svg`. Goto `/src/App.js` remove `import logo from './logo.svg';`

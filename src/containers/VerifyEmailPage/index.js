@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
-import { useParams, useHistory, Redirect } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../../redux/actions";
 import { Container, Row, Col } from "react-bootstrap";
 import { ClipLoader } from "react-spinners";
+import { routeActions } from "../../redux/actions/route.actions";
 
 const VerifyEmailPage = () => {
   const params = useParams();
@@ -11,28 +12,28 @@ const VerifyEmailPage = () => {
   const history = useHistory();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const loading = useSelector((state) => state.auth.loading);
-  const redirectTo = useSelector((state) => state.auth.redirectTo);
+  const redirectTo = useSelector((state) => state.route.redirectTo);
 
   useEffect(() => {
-    if (params?.code && params.code !== "_") {
+    if (params?.code && params.code !== "_" && !isAuthenticated && !loading) {
       console.log(params.code);
       dispatch(authActions.verifyEmail(params.code));
     }
-  }, [dispatch, params]);
+  }, [dispatch, params, loading, isAuthenticated]);
 
   useEffect(() => {
     if (redirectTo) {
       if (redirectTo === "__GO_BACK__") {
         history.goBack();
-        dispatch(authActions.setRedirectTo(""));
+        dispatch(routeActions.removeRedirectTo());
       } else {
         history.push(redirectTo);
-        dispatch(authActions.setRedirectTo(""));
+        dispatch(routeActions.removeRedirectTo());
       }
     }
   }, [dispatch, history, redirectTo]);
 
-  if (isAuthenticated) return <Redirect to="/" />;
+  // if (isAuthenticated) return <Redirect to="/" />;
   return (
     <Container fluid>
       <Row className="vh-100">

@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "./store";
 import { alertActions } from "./actions";
+import { toast } from "react-toastify";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_BACKEND_API + "api",
@@ -30,10 +31,11 @@ api.interceptors.response.use(
   function (error) {
     error = error.response.data;
     console.log("RESPONSE ERROR", error);
-    let errorMsg = error.message || error;
+    let errorMsg = error.message || "";
     if (error.errors && error.errors.message)
       errorMsg = errorMsg + ": " + error.errors.message;
-    store.dispatch(alertActions.setAlert(errorMsg, "danger"));
+    // store.dispatch(alertActions.setAlert(errorMsg, "danger"));
+    toast.error(errorMsg);
     return Promise.reject(error);
   }
 );

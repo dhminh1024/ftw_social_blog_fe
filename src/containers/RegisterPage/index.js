@@ -4,13 +4,14 @@ import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../redux/actions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { routeActions } from "../../redux/actions/route.actions";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    password2: "",
+    name: "Minh",
+    email: "minhdo@gmail.com",
+    password: "123",
+    password2: "123",
     avatarUrl: "",
   });
   const [errors, setErrors] = useState({
@@ -22,7 +23,7 @@ const RegisterPage = () => {
 
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.auth.loading);
-  const redirectTo = useSelector((state) => state.auth.redirectTo);
+  const redirectTo = useSelector((state) => state.route.redirectTo);
   const history = useHistory();
 
   const handleChange = (e) =>
@@ -61,10 +62,10 @@ const RegisterPage = () => {
     if (redirectTo) {
       if (redirectTo === "__GO_BACK__") {
         history.goBack();
-        dispatch(authActions.setRedirectTo(""));
+        dispatch(routeActions.removeRedirectTo());
       } else {
         history.push(redirectTo);
-        dispatch(authActions.setRedirectTo(""));
+        dispatch(routeActions.removeRedirectTo());
       }
     }
   }, [dispatch, history, redirectTo]);

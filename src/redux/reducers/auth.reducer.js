@@ -19,7 +19,10 @@ const authReducer = (state = initialState, action) => {
       return { ...state, loading: true };
 
     case types.REGISTER_SUCCESS:
-      return { ...state, loading: false, redirectTo: "/verify/_" };
+      return {
+        ...state,
+        loading: false,
+      };
 
     case types.LOGIN_SUCCESS:
     case types.LOGIN_FACEBOOK_SUCCESS:
@@ -28,7 +31,7 @@ const authReducer = (state = initialState, action) => {
       localStorage.setItem("accessToken", payload.accessToken);
       return {
         ...state,
-        user: { ...payload.user },
+        user: payload.user,
         accessToken: payload.accessToken,
         loading: false,
         isAuthenticated: true,
@@ -64,8 +67,6 @@ const authReducer = (state = initialState, action) => {
         user: null,
         loading: false,
       };
-    case types.SET_REDIRECT_TO:
-      return { ...state, redirectTo: payload };
     default:
       return state;
   }

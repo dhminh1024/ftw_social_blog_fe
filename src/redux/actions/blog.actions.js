@@ -1,6 +1,7 @@
 import * as types from "../constants/blog.constants";
 import api from "../api";
 import { alertActions } from "./alert.actions";
+import { routeActions } from "./route.actions";
 
 const blogsRequest = (
   pageNum = 1,
@@ -83,24 +84,26 @@ const createNewBlog = (title, content, images) => async (dispatch) => {
       type: types.CREATE_BLOG_SUCCESS,
       payload: res.data.data,
     });
+    dispatch(routeActions.redirect("__GO_BACK__"));
     dispatch(alertActions.setAlert("New blog has been created!", "success"));
   } catch (error) {
     dispatch({ type: types.CREATE_BLOG_FAILURE, payload: error });
   }
 };
 
-const updateBlog = (blogId, title, content) => async (dispatch) => {
+const updateBlog = (blogId, title, content, images) => async (dispatch) => {
   dispatch({ type: types.UPDATE_BLOG_REQUEST, payload: null });
   try {
     // let formData = new FormData();
     // formData.set("title", title);
     // formData.set("content", content);
-    const res = await api.put(`/blogs/${blogId}`, { title, content });
+    const res = await api.put(`/blogs/${blogId}`, { title, content, images });
 
     dispatch({
       type: types.UPDATE_BLOG_SUCCESS,
       payload: res.data.data,
     });
+    dispatch(routeActions.redirect("__GO_BACK__"));
     dispatch(alertActions.setAlert("The blog has been updated!", "success"));
   } catch (error) {
     dispatch({ type: types.UPDATE_BLOG_FAILURE, payload: error });
@@ -116,16 +119,12 @@ const deleteBlog = (blogId) => async (dispatch) => {
       type: types.DELETE_BLOG_SUCCESS,
       payload: res.data,
     });
+    dispatch(routeActions.redirect("__GO_BACK__"));
     dispatch(alertActions.setAlert("The blog has been deleted!", "success"));
   } catch (error) {
     dispatch({ type: types.DELETE_BLOG_FAILURE, payload: error });
   }
 };
-
-const setRedirectTo = (redirectTo) => ({
-  type: types.SET_REDIRECT_TO,
-  payload: redirectTo,
-});
 
 const sendEmojiReaction = (targetType, target, emoji) => async (dispatch) => {
   dispatch({ type: types.SEND_REACTION_REQUEST, payload: null });
@@ -155,6 +154,5 @@ export const blogActions = {
   createNewBlog,
   updateBlog,
   deleteBlog,
-  setRedirectTo,
   sendEmojiReaction,
 };

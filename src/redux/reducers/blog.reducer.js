@@ -33,7 +33,6 @@ const blogReducer = (state = initialState, action) => {
         ...state,
         selectedBlog: payload,
         loading: false,
-        redirectTo: "__GO_BACK__",
       };
 
     case types.BLOG_REQUEST_FAILURE:
@@ -44,14 +43,16 @@ const blogReducer = (state = initialState, action) => {
       return { ...state, loading: false };
 
     case types.CREATE_BLOG_SUCCESS:
-      return { ...state, loading: false, redirectTo: "__GO_BACK__" };
+      return {
+        ...state,
+        loading: false,
+      };
 
     case types.DELETE_BLOG_SUCCESS:
       return {
         ...state,
         loading: false,
         selectedBlog: {},
-        redirectTo: "__GO_BACK__",
       };
 
     case types.SEND_REACTION_REQUEST:
@@ -93,8 +94,6 @@ const blogReducer = (state = initialState, action) => {
     case types.SEND_REACTION_FAILURE:
     case types.CREATE_REVIEW_FAILURE:
       return { ...state, submitLoading: false };
-    case types.SET_REDIRECT_TO:
-      return { ...state, redirectTo: payload };
     default:
       return state;
   }

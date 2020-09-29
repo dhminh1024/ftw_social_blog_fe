@@ -3,11 +3,11 @@ import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import socketIOClient from "socket.io-client";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { alertActions } from "../../../redux/actions";
 import ScrollToBottom from "react-scroll-to-bottom";
 import ConversationList from "./ConversationList";
 import Message from "./Message";
 import { socketTypes, conversationTypes } from "../../../config/constants";
+import { toast } from "react-toastify";
 
 let socket;
 
@@ -67,17 +67,12 @@ const MessengerPage = () => {
         if (selectedConversation._id === msg.conversation) {
           setPrivateMessages((messages) => [...messages, msg]);
         } else {
-          dispatch(
-            alertActions.setAlert(
-              `${msg.user.name} has sent you a message`,
-              "info"
-            )
-          );
+          toast.info(`${msg.user.name} has sent you a message`);
         }
       });
 
       socket.on(socketTypes.ERROR, (err) => {
-        dispatch(alertActions.setAlert(err, "danger"));
+        toast.error(err);
       });
     }
     return () => {

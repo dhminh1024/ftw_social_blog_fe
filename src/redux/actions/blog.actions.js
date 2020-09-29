@@ -1,7 +1,7 @@
 import * as types from "../constants/blog.constants";
 import api from "../api";
-import { alertActions } from "./alert.actions";
 import { routeActions } from "./route.actions";
+import { toast } from "react-toastify";
 
 const blogsRequest = (
   pageNum = 1,
@@ -85,7 +85,7 @@ const createNewBlog = (title, content, images) => async (dispatch) => {
       payload: res.data.data,
     });
     dispatch(routeActions.redirect("__GO_BACK__"));
-    dispatch(alertActions.setAlert("New blog has been created!", "success"));
+    toast.success("New blog has been created!");
   } catch (error) {
     dispatch({ type: types.CREATE_BLOG_FAILURE, payload: error });
   }
@@ -104,7 +104,7 @@ const updateBlog = (blogId, title, content, images) => async (dispatch) => {
       payload: res.data.data,
     });
     dispatch(routeActions.redirect("__GO_BACK__"));
-    dispatch(alertActions.setAlert("The blog has been updated!", "success"));
+    toast.success("The blog has been updated!");
   } catch (error) {
     dispatch({ type: types.UPDATE_BLOG_FAILURE, payload: error });
   }
@@ -120,7 +120,7 @@ const deleteBlog = (blogId) => async (dispatch) => {
       payload: res.data,
     });
     dispatch(routeActions.redirect("__GO_BACK__"));
-    dispatch(alertActions.setAlert("The blog has been deleted!", "success"));
+    toast.success("The blog has been deleted!");
   } catch (error) {
     dispatch({ type: types.DELETE_BLOG_FAILURE, payload: error });
   }

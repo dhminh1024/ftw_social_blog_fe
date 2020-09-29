@@ -1,6 +1,5 @@
 import * as types from "../constants/auth.constants";
 import api from "../api";
-import { alertActions } from "./alert.actions";
 import { routeActions } from "./route.actions";
 import { toast } from "react-toastify";
 
@@ -9,7 +8,6 @@ const loginRequest = (email, password) => async (dispatch) => {
   try {
     const res = await api.post("/auth/login", { email, password });
     const name = res.data.data.user.name;
-    // dispatch(alertActions.setAlert(`Welcome ${name}`, "success"));
     dispatch({ type: types.LOGIN_SUCCESS, payload: res.data.data });
     toast.success(`Welcome ${name}`);
     api.defaults.headers.common["authorization"] =
@@ -24,7 +22,7 @@ const loginFacebookRequest = (access_token) => async (dispatch) => {
   try {
     const res = await api.post("/auth/login/facebook", { access_token });
     const name = res.data.data.user.name;
-    dispatch(alertActions.setAlert(`Welcome ${name}`, "success"));
+    toast.success(`Welcome ${name}`);
     dispatch({ type: types.LOGIN_FACEBOOK_SUCCESS, payload: res.data.data });
     api.defaults.headers.common["authorization"] =
       "Bearer " + res.data.data.accessToken;
@@ -38,7 +36,7 @@ const loginGoogleRequest = (access_token) => async (dispatch) => {
   try {
     const res = await api.post("/auth/login/google", { access_token });
     const name = res.data.data.user.name;
-    dispatch(alertActions.setAlert(`Welcome ${name}`, "success"));
+    toast.success(`Welcome ${name}`);
     dispatch({ type: types.LOGIN_GOOGLE_SUCCESS, payload: res.data.data });
     api.defaults.headers.common["authorization"] =
       "Bearer " + res.data.data.accessToken;
@@ -70,12 +68,7 @@ const verifyEmail = (code) => async (dispatch) => {
     const res = await api.post("/users/verify_email", { code });
     dispatch({ type: types.VERIFY_EMAIL_SUCCESS, payload: res.data.data });
     const name = res.data.data.user.name;
-    dispatch(
-      alertActions.setAlert(
-        `Welcome, ${name}! Your email address has been verified.`,
-        "success"
-      )
-    );
+    toast.success(`Welcome, ${name}! Your email address has been verified.`);
     api.defaults.headers.common["authorization"] =
       "Bearer " + res.data.data.accessToken;
   } catch (error) {
@@ -88,9 +81,7 @@ const updateProfile = (name, avatarUrl) => async (dispatch) => {
   try {
     const res = await api.put("/users", { name, avatarUrl });
     dispatch({ type: types.UPDATE_PROFILE_SUCCESS, payload: res.data.data });
-    dispatch(
-      alertActions.setAlert(`Your profile has been updated.`, "success")
-    );
+    toast.success(`Your profile has been updated.`);
   } catch (error) {
     dispatch({ type: types.UPDATE_PROFILE_FAILURE, payload: error });
   }

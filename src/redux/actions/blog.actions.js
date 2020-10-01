@@ -126,10 +126,10 @@ const deleteBlog = (blogId) => async (dispatch) => {
   }
 };
 
-const sendEmojiReaction = (targetType, target, emoji) => async (dispatch) => {
+const sendEmojiReaction = (targetType, targetId, emoji) => async (dispatch) => {
   dispatch({ type: types.SEND_REACTION_REQUEST, payload: null });
   try {
-    const res = await api.post(`/reactions`, { targetType, target, emoji });
+    const res = await api.post(`/reactions`, { targetType, targetId, emoji });
     if (targetType === "Blog") {
       dispatch({
         type: types.BLOG_REACTION_SUCCESS,

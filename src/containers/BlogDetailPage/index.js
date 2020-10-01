@@ -76,7 +76,7 @@ const BlogDetailPage = () => {
               <Reactions
                 reactionsData={blog.reactions}
                 targetType="Blog"
-                target={blog._id}
+                targetId={blog._id}
                 size="lg"
               />
               <hr />

@@ -3,12 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector, useDispatch } from "react-redux";
 import { blogActions } from "../redux/actions";
 
-const Reactions = ({ reactionsData, targetType, target, size }) => {
+const Reactions = ({ reactionsData, targetType, targetId, size }) => {
   const loading = useSelector((state) => state.blog.submitLoading);
   const dispatch = useDispatch();
 
   const handleClick = (emoji) => {
-    dispatch(blogActions.sendEmojiReaction(targetType, target, emoji));
+    dispatch(blogActions.sendEmojiReaction(targetType, targetId, emoji));
   };
 
   return (

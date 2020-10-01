@@ -8,10 +8,10 @@ import { routeActions } from "../../redux/actions/route.actions";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    name: "Minh",
-    email: "minhdo@gmail.com",
-    password: "123",
-    password2: "123",
+    name: "",
+    email: "",
+    password: "",
+    password2: "",
     avatarUrl: "",
   });
   const [errors, setErrors] = useState({

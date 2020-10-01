@@ -30,7 +30,7 @@ const ReviewContent = ({ review }) => {
       <Reactions
         reactionsData={review?.reactions}
         targetType="Review"
-        target={review?._id}
+        targetId={review?._id}
         size="sm"
       />
     </div>

@@ -27,7 +27,7 @@ const BlogDetailPage = () => {
   };
   const handleSubmitReview = (e) => {
     e.preventDefault();
-    dispatch(blogActions.createReview(blog._id, reviewText));
+    dispatch(blogActions.createReview(params.id, reviewText));
     setReviewText("");
   };
 
@@ -47,7 +47,7 @@ const BlogDetailPage = () => {
         <Button onClick={handleGoBackClick}>
           <FontAwesomeIcon icon="chevron-left" size="1x" /> Back
         </Button>
-        {currentUser?._id === blog?.author?._id ? (
+        {blog?._id && currentUser?._id === blog?.author?._id ? (
           <Link to={`/blog/edit/${blog._id}`}>
             <Button variant="primary">
               <FontAwesomeIcon icon="edit" size="1x" /> Edit

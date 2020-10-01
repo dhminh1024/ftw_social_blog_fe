@@ -139,7 +139,7 @@ const sendEmojiReaction = (targetType, targetId, emoji) => async (dispatch) => {
     if (targetType === "Review") {
       dispatch({
         type: types.REVIEW_REACTION_SUCCESS,
-        payload: { reactions: res.data.data, reviewId: target },
+        payload: { reactions: res.data.data, reviewId: targetId },
       });
     }
   } catch (error) {
